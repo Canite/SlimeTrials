@@ -1,0 +1,20 @@
+#ifndef _PHYSICS_H
+#define _PHYSICS_H
+
+#include "utils.h"
+#include "player.h"
+
+// physics constants
+#define MAX_X_SPEED_IN_SUBPIXELS 45
+#define MAX_X_GROUND_SPEED_IN_SUBPIXELS 40
+#define X_ACCELERATION_IN_SUBPIXELS 4
+#define X_GROUND_ACCELERATION_IN_SUBPIXELS 5
+#define X_DECELERATION_IN_SUBPIXELS 3
+#define MAX_Y_SPEED_IN_SUBPIXELS 48
+#define Y_ACCELERATION_IN_SUBPIXELS 2
+#define GRAVITY_CONST 2
+#define JUMP_ACCELERATION_IN_SUBPIXELS 48
+
+void apply_physics();
+
+#endif
