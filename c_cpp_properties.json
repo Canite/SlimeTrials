@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "GBDK 2020",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "F:\\gbdk\\include\\**"
+            ],
+            "defines": [
+                "__TARGET_gb",
+                "__PORT_sm83"
+            ],
+            //"browse": {
+            //    "path":[
+            //        "${workspaceFolder}/**",
+            //        "F:\\gbdk\\include\\**"
+            //    ]
+            //},
+            //"windowsSdkVersion": "10.0.19041.0",
+            //"compilerPath": "F:\\gbdk\\bin\\lcc.exe",
+            "compilerArgs": ["-D__banked -D__naked"],
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 4
+}
