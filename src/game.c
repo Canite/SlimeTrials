@@ -1,12 +1,16 @@
 #include "../include/game.h"
 
 uint16_t nGameState = GS_TITLE_LOAD;
+uint16_t gameFrame = 0;
 
 void game_loop()
 {
     // Loop forever
     while(TRUE)
     {
+		// Done processing, yield CPU and wait for start of next frame
+        wait_vbl_done();
+
         // Get new inputs
         old_joy = joy;
         joy = joypad();
@@ -14,10 +18,10 @@ void game_loop()
         switch(nGameState)
         {
             case GS_TITLE_LOAD:
-                gotoxy(7u, 5u);
-                printf("UNKNOWN");
-                gotoxy(5u, 8u);
-                printf("PRESS START");
+                //gotoxy(7u, 5u);
+                //printf("UNKNOWN");
+                //gotoxy(5u, 8u);
+                //printf("PRESS START");
                 nGameState = GS_TITLE;
 
             case GS_TITLE:
@@ -38,12 +42,10 @@ void game_loop()
                 break;
         }
 
+        gameFrame += 1;
         // debug
-        printf("        ");
-        gotoxy(1u, 1u);
-        printf("%d %d", player.xSpd, player.ySpd);
-
-		// Done processing, yield CPU and wait for start of next frame
-        wait_vbl_done();
+        //printf("        ");
+        //gotoxy(1u, 1u);
+        //printf("%d %d", player.animIndex, player.animFrame);
     }
 }

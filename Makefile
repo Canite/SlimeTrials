@@ -10,11 +10,11 @@ RGBDS_HOME = "F:/GBDev/rgbds-0.6.1-win64/"
 EMULATOR = "F:/bgb/bgb.exe"
 
 LCC = $(GBDK_HOME)bin/lcc
-RGBFIX = $(RGBDS_HOME)rgbgfx
+RGBGFX = $(RGBDS_HOME)rgbgfx
 
 # You can set flags for LCC here
 # For example, you can uncomment the line below to turn on debug output
-# LCCFLAGS += -debug # Uncomment to enable debug output
+LCCFLAGS += -debug # Uncomment to enable debug output
 # LCCFLAGS += -v     # Uncomment for lcc verbose output
 
 
@@ -28,7 +28,8 @@ BINS	    = $(OBJDIR)/$(PROJECTNAME).gb
 CSOURCES    = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.c))) $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.c)))
 ASMSOURCES  = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.s)))
 IMAGEFILES  = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.png)))
-OBJS       = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.s=$(OBJDIR)/%.o) $(IMAGEFILES:%.png=$(RESDIR)/%.bin)
+OBJS        = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.s=$(OBJDIR)/%.o)
+RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.2bpp)
 
 all:	prepare $(BINS)
 
@@ -37,8 +38,8 @@ compile.bat: Makefile
 	@make -sn | sed y/\\//\\\\/ | sed s/mkdir\ -p\/mkdir\/ | grep -v make >> compile.bat
 
 # Compile .png files in "res/" to bin files
-$(RESDIR)/%.bin:  $(RESDIR)/%.png
-	$(RGBFIX) $(RGBFIXFLAGS) -o $@ $<
+$(RESDIR)/%.2bpp:  $(RESDIR)/%.png
+	$(RGBGFX) $(RGBGFXFLAGS) -o $@ $<
 
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
@@ -58,7 +59,7 @@ $(OBJDIR)/%.s:	$(SRCDIR)/%.c
 	$(LCC) $(LCCFLAGS) -S -o $@ $<
 
 # Link the compiled object files into a .gb ROM file
-$(BINS):	$(OBJS)
+$(BINS):	$(RESOBJS) $(OBJS)
 	$(LCC) $(LCCFLAGS) -o $(BINS) $(OBJS)
 
 prepare:

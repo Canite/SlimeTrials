@@ -20,6 +20,7 @@ enum GameState
 };
 
 extern uint16_t nGameState;
+extern uint16_t gameFrame;
 
 void game_loop();
 

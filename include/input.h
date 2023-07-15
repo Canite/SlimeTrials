@@ -5,6 +5,9 @@
 #include <gb/gb.h>
 
 #include "game.h"
+#include "physics.h"
+#include "player.h"
+#include "utils.h"
 
 // new and previous values of the joypad input
 extern uint8_t joy;

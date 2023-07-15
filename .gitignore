@@ -1,3 +1,4 @@
 .vscode/
 res/*.bin
+res/*.2bpp
 obj/
