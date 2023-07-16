@@ -8,7 +8,7 @@ void game_loop()
     // Loop forever
     while(TRUE)
     {
-		// Done processing, yield CPU and wait for start of next frame
+        // Done processing, yield CPU and wait for start of next frame
         wait_vbl_done();
 
         // Get new inputs

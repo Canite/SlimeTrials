@@ -97,6 +97,7 @@ void apply_physics()
         player.angularAcc = SIN(player.hookAngle);
         // Division with negative numbers does not work properly in gbdk
         // So, change to positive before division (algorithm needs -sin() anyways)
+        // Divide by the number of hook segements (the hookLength is too aggressive adjustment)
         if (player.angularAcc < 0)
         {
             player.angularAcc = -1 * player.angularAcc;
@@ -108,12 +109,27 @@ void apply_physics()
             player.angularAcc = -1 * player.angularAcc;
         }
 
-        player.angularVel += player.angularAcc + (player.angularAcc >> 1) + 1;
-        player.hookAngle += (player.angularVel) >> 4;
+        player.angularVel += player.angularAcc + (player.angularAcc >> 1) + sign(player.angularAcc);
+        // Taper off to angle 0 even if there is no more velocity
+        // this ensures that we always settle down to angle 0 with no input
+        if (player.angularVel >> 1 == 0 && player.hookAngle > 0 && player.hookAngle <= 8)
+        {
+            player.hookAngle -= 1;
+        }
+        else if (player.angularVel >> 1 == 0  && player.hookAngle > 247 /* && player.hookAngle <= 255 //always true */)
+        {
+            player.hookAngle += 1;
+        }
+        else
+        {
+            player.hookAngle += (player.angularVel) >> 4;
+        }
 
+        // Hook length needs to be << 4 and sin(a) needs >> 7, so after mult it's >> 3
         player.x = ((player.hookLength * SIN(player.hookAngle)) >> 3) + player.hookX;
         player.y = ((player.hookLength * COS(player.hookAngle)) >> 3) + player.hookY;
 
+        // Decelerate, otherwise we'll swing back and forth forever
         if (player.angularVel < 0)
         {
             player.angularVel += 1;
@@ -121,16 +137,6 @@ void apply_physics()
         else if (player.angularVel)
         {
             player.angularVel -= 1;
-        }
-        // Taper off to angle 0 even if there is no more velocity
-        // angularVel == 0
-        else if (player.hookAngle > 0 && player.hookAngle <= 8)
-        {
-            player.hookAngle -= 1;
-        }
-        else if (player.hookAngle > 247 /* && player.hookAngle <= 255 //always true */)
-        {
-            player.hookAngle += 1;
         }
     }
 }

@@ -5,9 +5,15 @@
 
 # If you move this project you can change the directory 
 # to match your GBDK root directory (ex: GBDK_HOME = "C:/GBDK/"
-GBDK_HOME = "F:/gbdk/"
-RGBDS_HOME = "F:/GBDev/rgbds-0.6.1-win64/"
-EMULATOR = "F:/bgb/bgb.exe"
+ifdef OS
+	GBDK_HOME = "F:/gbdk/"
+	RGBDS_HOME = "F:/GBDev/rgbds-0.6.1-win64/"
+	EMULATOR = "F:/bgb/bgb.exe"
+else
+	GBDK_HOME = "/home/canight/gbdk/"
+	RGBDS_HOME = ""
+	EMULATOR = "sameboy"
+endif
 
 LCC = $(GBDK_HOME)bin/lcc
 RGBGFX = $(RGBDS_HOME)rgbgfx

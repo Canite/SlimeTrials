@@ -29,3 +29,9 @@ uint16_t abs_sub(uint16_t x, uint16_t y)
 
     return x - y;
 }
+
+int16_t sign(int16_t x)
+{
+    if (x < 0) return -1;
+    if (x >= 0) return 1;
+}
