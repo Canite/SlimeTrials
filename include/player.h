@@ -16,6 +16,7 @@ struct Player
     uint8_t h;
     int16_t xSpd;
     int16_t ySpd;
+    uint8_t colFlags;
     int16_t angularAcc;
     int16_t angularVel;
     uint8_t facing;

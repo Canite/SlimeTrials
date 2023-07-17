@@ -13,6 +13,7 @@ void init_player()
     player.xSpd = player.ySpd = 0;
     player.w = 8;
     player.h = 8;
+    player.colFlags = 0;
     player.angularAcc = 0;
     player.angularVel = 0;
     player.facing = 0;

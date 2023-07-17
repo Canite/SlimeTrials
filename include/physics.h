@@ -17,7 +17,7 @@
 #define Y_ACCELERATION_IN_SUBPIXELS 2
 #define GRAVITY_CONST 3
 #define JUMP_ACCELERATION_IN_SUBPIXELS 54
-#define INPUT_ANGULAR_ACC 4
+#define INPUT_ANGULAR_ACC 6
 #define MAX_ANGULAR_VELOCITY 64
 #define MAX_HOOK_DISTANCE 8192 // 64 pixels
 #define MAX_HOOK_LENGTH 64 // 64 pixels
@@ -43,6 +43,9 @@ extern const int8_t sine_wave[256];
 #define ANGLE_360DEG    255
 
 void apply_physics();
+uint8_t handle_collision_h(int16_t xTmp, uint8_t col_flags);
+uint8_t handle_collision_v(int16_t yTmp, uint8_t col_flags);
+uint8_t handle_collision_v_corners(int16_t yTmp, uint8_t col_flags);
 uint16_t isqrt(uint16_t x) NONBANKED;
 
 #endif

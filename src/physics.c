@@ -46,6 +46,7 @@ void apply_physics()
         int8_t ySpdSign = sign(player.ySpd);
         int16_t xTmp = 0;
         int16_t yTmp = 0;
+        player.grounded = 0;
         while (xTmp != player.xSpd || yTmp != player.ySpd)
         {
             if ((xSpdSign < 0 && (xTmp - 128) < player.xSpd) || (xSpdSign >= 0 && (xTmp + 128) > player.xSpd))
@@ -66,78 +67,43 @@ void apply_physics()
                 yTmp += ySpdSign << 7;
             }
 
-            uint8_t col_flags = check_tilemap_collision(player.x + xTmp, player.y + yTmp, test_tiles, test_tile_width);
+            // Check at least 1 pixel offset
+            uint16_t yColOffset = yTmp;
+            if (yTmp < 0) yColOffset = MIN(-16, yTmp);
+            if (yTmp > 0) yColOffset = MAX(16, yTmp);
+            uint16_t xColOffset = xTmp;
+            if (xTmp < 0) xColOffset = MIN(-16, xTmp);
+            if (xTmp > 0) xColOffset = MAX(16, xTmp);
+
+            uint8_t col_flags = check_tilemap_collision(player.x + xColOffset, player.y + yColOffset, test_tiles, test_tile_width);
+            player.colFlags = col_flags;
             // Check corners first
-            if (yTmp > 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == BOT_RIGHT_COL) || */(col_flags & (BOT_LEFT_COL | BOT_RIGHT_COL))))
+            uint8_t cornerCollision = handle_collision_v_corners(yTmp, col_flags);
+            if (cornerCollision == 1)
             {
-                uint16_t yOffset = (((player.y + yTmp) >> 7) << 7);
-                if ((col_flags == BOT_LEFT_COL || col_flags == BOT_RIGHT_COL))
+                handle_collision_h(xTmp, col_flags);
+            }
+            else if (!cornerCollision)
+            {
+                if ((col_flags == (BOT_LEFT_COL | TOP_LEFT_COL)) || (col_flags == (BOT_RIGHT_COL | TOP_RIGHT_COL)))
                 {
-                    if (player.y - yOffset <= 48)
-                    {
-                        player.y = yOffset;
-                        yTmp = 0;
-                        player.ySpd = 0;
-                        player.grounded = 1;
-                    }
+                    handle_collision_h(xTmp, col_flags);
+                    col_flags = check_tilemap_collision(player.x, player.y + yColOffset, test_tiles, test_tile_width);
+                    handle_collision_v(yTmp, col_flags);
                 }
                 else
                 {
-                    player.y = yOffset;
-                    yTmp = 0;
-                    player.ySpd = 0;
-                    player.grounded = 1;
+                    handle_collision_v(yTmp, col_flags);
+                    col_flags = check_tilemap_collision(player.x + xColOffset, player.y, test_tiles, test_tile_width);
+                    handle_collision_h(xTmp, col_flags);
                 }
-            }
-
-            if (yTmp < 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == BOT_RIGHT_COL) || */(col_flags & (TOP_LEFT_COL | TOP_RIGHT_COL))))
-            {
-                uint16_t yOffset = (((player.y + yTmp) >> 7) << 7) + 128;
-                if ((col_flags == TOP_LEFT_COL || col_flags == TOP_RIGHT_COL))
-                {
-                    if (yOffset - player.y<= 48)
-                    {
-                        player.y = yOffset;
-                        yTmp = 0;
-                        player.ySpd = 0;
-                    }
-                }
-                else
-                {
-                    player.y = yOffset;
-                    yTmp = 0;
-                    player.ySpd = 0;
-                }
-            }
-
-            if (xTmp < 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == TOP_LEFT_COL) || */(col_flags & (BOT_LEFT_COL | TOP_LEFT_COL))))
-            {
-                player.x = (((player.x + xTmp) >> 7) << 7) + 128;
-                xTmp = 0;
-                player.xSpd = 0;
-            }
-
-            if (xTmp > 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == TOP_LEFT_COL) || */(col_flags & (BOT_RIGHT_COL | TOP_RIGHT_COL))))
-            {
-                player.x = (((player.x + xTmp) >> 7) << 7);
-                xTmp = 0;
-                player.xSpd = 0;
             }
         }
 
         player.x += player.xSpd;
         player.y += player.ySpd;
 
-        // handle collision
-        if (player.ySpd != 0)
-        {
-            player.grounded = 0;
-        }
-
-        if (!player.grounded)
-        {
-            player.ySpd += GRAVITY_CONST;
-        }
+        player.ySpd += GRAVITY_CONST;
 
         // decelerate Y and X
         if (player.grounded)
@@ -219,4 +185,79 @@ void apply_physics()
             player.angularVel -= 1;
         }
     }
+}
+
+uint8_t handle_collision_h(int16_t xTmp, uint8_t col_flags)
+{
+    if (xTmp < 0 && (col_flags & (BOT_LEFT_COL | TOP_LEFT_COL)))
+    {
+        player.x = (((player.x + xTmp) >> 7) << 7) + 128;
+        xTmp = 0;
+        player.xSpd = 0;
+        return 1;
+    }
+
+    if (xTmp > 0 && (col_flags & (BOT_RIGHT_COL | TOP_RIGHT_COL)))
+    {
+        player.x = (((player.x + xTmp) >> 7) << 7);
+        xTmp = 0;
+        player.xSpd = 0;
+        return 1;
+    }
+
+    return 0;
+}
+
+uint8_t handle_collision_v(int16_t yTmp, uint8_t col_flags)
+{
+    if (yTmp > 0 && (col_flags & (BOT_LEFT_COL | BOT_RIGHT_COL)))
+    {
+        player.y = (((player.y + yTmp) >> 7) << 7);
+        yTmp = 0;
+        player.ySpd = 0;
+        player.grounded = 1;
+        return 1;
+    }
+
+    if (yTmp < 0 && (col_flags & (TOP_LEFT_COL | TOP_RIGHT_COL)))
+    {
+        player.y = (((player.y + yTmp) >> 7) << 7) + 128;
+        yTmp = 0;
+        player.ySpd = 0;
+        return 1;
+    }
+
+    return 0;
+}
+
+uint8_t handle_collision_v_corners(int16_t yTmp, uint8_t col_flags)
+{
+    uint16_t yOffset = (((player.y + yTmp) >> 7) << 7);
+    if (col_flags == BOT_LEFT_COL || col_flags == BOT_RIGHT_COL)
+    {
+        if (yTmp > 0 && player.y - yOffset <= 24)
+        {
+            player.y = yOffset;
+            yTmp = 0;
+            player.ySpd = 0;
+            player.grounded = 1;
+            return 2;
+        }
+        return 1;
+    }
+
+    if (col_flags == TOP_LEFT_COL || col_flags == TOP_RIGHT_COL)
+    {
+        yOffset += 128;
+        if (yTmp < 0 && yOffset - player.y <= 24)
+        {
+            player.y = yOffset;
+            yTmp = 0;
+            player.ySpd = 0;
+            return 2;
+        }
+        return 1;
+    }
+
+    return 0;
 }
