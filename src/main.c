@@ -1,12 +1,13 @@
+#include <stdint.h>
 #include <gb/gb.h>
 #include <gbdk/platform.h>
 #include <gbdk/console.h>
 #include <gbdk/incbin.h>
-#include <stdint.h>
 
 #include "../include/player.h"
 #include "../include/game.h"
 #include "../include/gfx.h"
+#include "../res/test.h"
 
 INCBIN(slime, "res/slime.2bpp")
 INCBIN_EXTERN(slime)
@@ -29,7 +30,7 @@ void main(void)
     VBK_REG = 1;
     VBK_REG = 0;
     clear_background();
-    //set_bkg_tiles(0, 0, testWidth, testHeight, test);
+    set_bkg_submap(0, 0, 20, 18, test_tiles, test_tile_width);
 
     SHOW_BKG;
     SHOW_SPRITES;

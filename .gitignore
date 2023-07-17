@@ -1,4 +1,6 @@
 .vscode/
 res/*.bin
 res/*.2bpp
+res/*.c
+res/*.h
 obj/

@@ -52,7 +52,10 @@ enum HookState
 #define GROUND_MOVE_ANIM_FRAMES  4
 #define GROUND_MOVE_ANIM_SPEED  7
 
-#define HOOK_SPRITE_INDEX 6
+#define PLAYER_SPRITE_INDEX 0
+#define PLAYER_SPRITE_TILE_INDEX 0
+#define HOOK_SPRITE_INDEX 1
+#define HOOK_SPRITE_TILE_INDEX 6
 
 extern struct Player player;
 

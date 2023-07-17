@@ -111,6 +111,28 @@ void process_game_input()
         player.ySpd -= player.ySpd >> 1;
     }
 
+    if (INPUT_KEY(J_UP))
+    {
+        if (player.hookState == HS_ATTACHED && player.hookLength > MIN_HOOK_LENGTH)
+        {
+            player.hookLength -= 1;
+            uint8_t old_segments = player.hookSegments;
+            player.hookSegments = player.hookLength >> 3;
+            if (old_segments != player.hookSegments)
+            {
+                hide_sprite(HOOK_SPRITE_INDEX + player.hookSegments);
+            }
+        }
+    }
+    else if (INPUT_KEY(J_DOWN))
+    {
+        if (player.hookState == HS_ATTACHED && player.hookLength < MAX_HOOK_LENGTH)
+        {
+            player.hookLength += 1;
+            player.hookSegments = player.hookLength >> 3;
+        }
+    }
+
     if (INPUT_KEYPRESS(J_B))
     {
         if (player.hookState != HS_ATTACHED)

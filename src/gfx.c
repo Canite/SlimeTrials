@@ -135,14 +135,14 @@ void draw_hook()
         set_sprite_tile(i + 1, HOOK_SPRITE_INDEX + i);
         */
 
-        set_sprite_tile(i + 1, HOOK_SPRITE_INDEX);
+        set_sprite_tile(i + 1, HOOK_SPRITE_TILE_INDEX);
         //set_sprite_prop(i + 1, spriteProp);
         move_sprite(i + 1, (player.hookX >> 4) + (xOffset * i), (player.hookY >> 4) + (yOffset * i));
     }
-    
-    if (abs8(xOffset) + abs8(yOffset) > 12)
+
+    if (abs8(xOffset) + abs8(yOffset) > 14)
     {
-        hide_sprite(player.hookSegments);
+        hide_sprite(HOOK_SPRITE_INDEX + player.hookSegments - 1);
     }
 }
 
@@ -229,6 +229,6 @@ void hide_hook()
 {
     for (uint8_t i = 0; i < player.hookSegments; i++)
     {
-        hide_sprite(i + 1);
+        hide_sprite(HOOK_SPRITE_INDEX + i);
     }
 }

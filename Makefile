@@ -30,12 +30,14 @@ PROJECTNAME    = Unknown
 SRCDIR      = src
 OBJDIR      = obj
 RESDIR      = res
+UTILDIR     = utils
 BINS	    = $(OBJDIR)/$(PROJECTNAME).gb
 CSOURCES    = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.c))) $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.c)))
 ASMSOURCES  = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.s)))
 IMAGEFILES  = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.png)))
+TILEDFILES  = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.tmj)))
 OBJS        = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.s=$(OBJDIR)/%.o)
-RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.2bpp)
+RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.2bpp $(TILEDFILES:%.tmj=$(RESDIR)/%))
 
 all:	prepare $(BINS)
 
@@ -46,6 +48,9 @@ compile.bat: Makefile
 # Compile .png files in "res/" to bin files
 $(RESDIR)/%.2bpp:  $(RESDIR)/%.png
 	$(RGBGFX) $(RGBGFXFLAGS) -o $@ $<
+
+$(RESDIR)/%: 	$(RESDIR)/%.tmj
+	$(UTILDIR)/convert_tile_json.py -i $< -o $@
 
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
@@ -74,6 +79,8 @@ prepare:
 clean:
 #	rm -f  *.gb *.ihx *.cdb *.adb *.noi *.map
 	rm -f  $(OBJDIR)/*.*
+	rm -f  $(RESDIR)/*.c
+	rm -f  $(RESDIR)/*.h
 
 run:
 	$(EMULATOR) $(OBJDIR)/$(PROJECTNAME).gb

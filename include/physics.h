@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "player.h"
 #include "game.h"
+#include "../res/test.h"
 
 // physics constants
 #define MAX_X_SPEED_IN_SUBPIXELS 64
@@ -19,6 +20,8 @@
 #define INPUT_ANGULAR_ACC 4
 #define MAX_ANGULAR_VELOCITY 64
 #define MAX_HOOK_DISTANCE 8192 // 64 pixels
+#define MAX_HOOK_LENGTH 64 // 64 pixels
+#define MIN_HOOK_LENGTH 8 // 64 pixels
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))

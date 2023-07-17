@@ -42,24 +42,104 @@ void apply_physics()
     // Unhooked physics
     if (player.hookState != HS_ATTACHED)
     {
+        int8_t xSpdSign = sign(player.xSpd);
+        int8_t ySpdSign = sign(player.ySpd);
+        int16_t xTmp = 0;
+        int16_t yTmp = 0;
+        while (xTmp != player.xSpd || yTmp != player.ySpd)
+        {
+            if ((xSpdSign < 0 && (xTmp - 128) < player.xSpd) || (xSpdSign >= 0 && (xTmp + 128) > player.xSpd))
+            {
+                xTmp = player.xSpd;
+            }
+            else
+            {
+                xTmp += xSpdSign << 7;
+            }
+
+            if ((ySpdSign < 0 && (yTmp - 128) < player.ySpd) || (ySpdSign >= 0 && (yTmp + 128) > player.ySpd))
+            {
+                yTmp = player.ySpd;
+            }
+            else
+            {
+                yTmp += ySpdSign << 7;
+            }
+
+            uint8_t col_flags = check_tilemap_collision(player.x + xTmp, player.y + yTmp, test_tiles, test_tile_width);
+            // Check corners first
+            if (yTmp > 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == BOT_RIGHT_COL) || */(col_flags & (BOT_LEFT_COL | BOT_RIGHT_COL))))
+            {
+                uint16_t yOffset = (((player.y + yTmp) >> 7) << 7);
+                if ((col_flags == BOT_LEFT_COL || col_flags == BOT_RIGHT_COL))
+                {
+                    if (player.y - yOffset <= 48)
+                    {
+                        player.y = yOffset;
+                        yTmp = 0;
+                        player.ySpd = 0;
+                        player.grounded = 1;
+                    }
+                }
+                else
+                {
+                    player.y = yOffset;
+                    yTmp = 0;
+                    player.ySpd = 0;
+                    player.grounded = 1;
+                }
+            }
+
+            if (yTmp < 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == BOT_RIGHT_COL) || */(col_flags & (TOP_LEFT_COL | TOP_RIGHT_COL))))
+            {
+                uint16_t yOffset = (((player.y + yTmp) >> 7) << 7) + 128;
+                if ((col_flags == TOP_LEFT_COL || col_flags == TOP_RIGHT_COL))
+                {
+                    if (yOffset - player.y<= 48)
+                    {
+                        player.y = yOffset;
+                        yTmp = 0;
+                        player.ySpd = 0;
+                    }
+                }
+                else
+                {
+                    player.y = yOffset;
+                    yTmp = 0;
+                    player.ySpd = 0;
+                }
+            }
+
+            if (xTmp < 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == TOP_LEFT_COL) || */(col_flags & (BOT_LEFT_COL | TOP_LEFT_COL))))
+            {
+                player.x = (((player.x + xTmp) >> 7) << 7) + 128;
+                xTmp = 0;
+                player.xSpd = 0;
+            }
+
+            if (xTmp > 0 && (/*(col_flags == BOT_LEFT_COL) || (col_flags == TOP_LEFT_COL) || */(col_flags & (BOT_RIGHT_COL | TOP_RIGHT_COL))))
+            {
+                player.x = (((player.x + xTmp) >> 7) << 7);
+                xTmp = 0;
+                player.xSpd = 0;
+            }
+        }
+
         player.x += player.xSpd;
         player.y += player.ySpd;
 
         // handle collision
-        if (player.y > 2432) player.y = 2432;
-
-        // decelerate Y and X
-        if (player.y < 2432)
+        if (player.ySpd != 0)
         {
             player.grounded = 0;
-            player.ySpd += GRAVITY_CONST;
-        }
-        else
-        {
-            player.grounded = 1;
-            player.ySpd = 0;
         }
 
+        if (!player.grounded)
+        {
+            player.ySpd += GRAVITY_CONST;
+        }
+
+        // decelerate Y and X
         if (player.grounded)
         {
             if (player.xSpd < X_GROUND_DECELERATION_IN_SUBPIXELS && player.xSpd > -X_GROUND_DECELERATION_IN_SUBPIXELS)
@@ -109,7 +189,7 @@ void apply_physics()
             player.angularAcc = -1 * player.angularAcc;
         }
 
-        player.angularVel += player.angularAcc + (player.angularAcc >> 1) + sign(player.angularAcc);
+        player.angularVel += player.angularAcc + sign(player.angularAcc);
         // Taper off to angle 0 even if there is no more velocity
         // this ensures that we always settle down to angle 0 with no input
         if (player.angularVel >> 1 == 0 && player.hookAngle > 0 && player.hookAngle <= 8)
