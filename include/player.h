@@ -20,7 +20,6 @@ struct Player
     int16_t angularAcc;
     int16_t angularVel;
     uint8_t facing;
-    uint8_t rot;
     uint8_t animIndex;
     uint8_t animFrame;
     uint8_t numAnimFrames;
@@ -30,7 +29,8 @@ struct Player
     uint16_t hookX;
     uint16_t hookY;
     uint8_t hookAngle;
-    uint16_t hookLength;
+    uint8_t hookLength;
+    uint8_t oldHookLength;
     uint8_t hookSegments;
 };
 

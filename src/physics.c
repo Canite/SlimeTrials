@@ -79,23 +79,31 @@ void apply_physics()
             player.colFlags = col_flags;
             // Check corners first
             uint8_t cornerCollision = handle_collision_v_corners(yTmp, col_flags);
-            if (cornerCollision == 1)
+            if (cornerCollision == 2)
             {
-                handle_collision_h(xTmp, col_flags);
+                yTmp = 0;
+                col_flags = check_tilemap_collision(player.x + xColOffset, player.y, test_tiles, test_tile_width);
+                if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
             }
-            else if (!cornerCollision)
+            else if (cornerCollision == 1)
+            {
+                if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
+                col_flags = check_tilemap_collision(player.x, player.y + yColOffset, test_tiles, test_tile_width);
+                if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
+            }
+            else
             {
                 if ((col_flags == (BOT_LEFT_COL | TOP_LEFT_COL)) || (col_flags == (BOT_RIGHT_COL | TOP_RIGHT_COL)))
                 {
-                    handle_collision_h(xTmp, col_flags);
+                    if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
                     col_flags = check_tilemap_collision(player.x, player.y + yColOffset, test_tiles, test_tile_width);
-                    handle_collision_v(yTmp, col_flags);
+                    if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
                 }
                 else
                 {
-                    handle_collision_v(yTmp, col_flags);
+                    if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
                     col_flags = check_tilemap_collision(player.x + xColOffset, player.y, test_tiles, test_tile_width);
-                    handle_collision_h(xTmp, col_flags);
+                    if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
                 }
             }
         }
@@ -156,15 +164,22 @@ void apply_physics()
         }
 
         player.angularVel += player.angularAcc + sign(player.angularAcc);
+        player.angularVel = CLAMP(player.angularVel, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
+
         // Taper off to angle 0 even if there is no more velocity
         // this ensures that we always settle down to angle 0 with no input
+        // unless we are blocked by a wall, then we can't settle to 0
+        int8_t angleSettleAlignment = 0;
+        uint8_t oldAngle = player.hookAngle;
         if (player.angularVel >> 1 == 0 && player.hookAngle > 0 && player.hookAngle <= 8)
         {
             player.hookAngle -= 1;
+            angleSettleAlignment = 1;
         }
         else if (player.angularVel >> 1 == 0  && player.hookAngle > 247 /* && player.hookAngle <= 255 //always true */)
         {
             player.hookAngle += 1;
+            angleSettleAlignment = -1;
         }
         else
         {
@@ -172,27 +187,66 @@ void apply_physics()
         }
 
         // Hook length needs to be << 4 and sin(a) needs >> 7, so after mult it's >> 3
-        player.x = ((player.hookLength * SIN(player.hookAngle)) >> 3) + player.hookX;
-        player.y = ((player.hookLength * COS(player.hookAngle)) >> 3) + player.hookY;
+        int16_t xOffset = (player.hookLength * SIN(player.hookAngle)) >> 3;
+        int16_t yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
+        player.x = player.hookX + xOffset;
+        player.y = player.hookY + yOffset;
         uint8_t col_flags = check_tilemap_collision(player.x, player.y, test_tiles, test_tile_width);
+        uint8_t nAttempts = 12;
+        uint8_t tmpAngle = player.hookAngle;
+        int8_t angularVelSign = sign(player.angularVel);
         if (col_flags)
         {
-            while (col_flags)
+            while (col_flags && nAttempts > 0)
             {
-                if (player.angularVel < 0)
+                if (angleSettleAlignment == 0)
                 {
-                    player.hookAngle += 1;
+                    if (angularVelSign < 0)
+                    {
+                        tmpAngle += 1;
+                    }
+                    else
+                    {
+                        tmpAngle -= 1;
+                    }
                 }
                 else
                 {
-                    player.hookAngle -= 1;
+                    tmpAngle += angleSettleAlignment;
                 }
 
-                player.x = ((player.hookLength * SIN(player.hookAngle)) >> 3) + player.hookX;
-                player.y = ((player.hookLength * COS(player.hookAngle)) >> 3) + player.hookY;
+                xOffset = (player.hookLength * SIN(tmpAngle)) >> 3;
+                yOffset = (player.hookLength * COS(tmpAngle)) >> 3;
+                player.x = player.hookX + xOffset;
+                player.y = player.hookY + yOffset;
                 col_flags = check_tilemap_collision(player.x, player.y, test_tiles, test_tile_width);
+                nAttempts -= 1;
+                if (nAttempts == 6)
+                {
+                    tmpAngle = player.hookAngle;
+                    angularVelSign = -1 * angularVelSign;
+                    if (angularVelSign == 0) angularVelSign = -1;
+                }
             }
-            player.angularVel = -1 * (player.angularVel >> 1);
+
+            // Failed to update due to collision
+            if (nAttempts == 0)
+            {
+                if (player.oldHookLength != player.hookLength)
+                {
+                    player.hookLength = player.oldHookLength;
+                }
+                player.hookAngle = oldAngle;
+                xOffset = (player.hookLength * SIN(player.hookAngle)) >> 3;
+                yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
+                player.x = player.hookX + xOffset;
+                player.y = player.hookY + yOffset;
+            }
+            else
+            {
+                player.hookAngle = tmpAngle;
+                player.angularVel = -1 * (player.angularVel >> 1);
+            }
         }
 
         // Decelerate, otherwise we'll swing back and forth forever

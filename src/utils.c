@@ -33,7 +33,8 @@ uint16_t abs_sub(uint16_t x, uint16_t y)
 int16_t sign(int16_t x)
 {
     if (x < 0) return -1;
-    return 1;
+    if (x > 0) return 1;
+    return 0;
 }
 
 uint8_t check_tilemap_collision(uint16_t x, uint16_t y, unsigned char tilemap[], uint8_t tilemap_w)

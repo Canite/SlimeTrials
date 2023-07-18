@@ -8,10 +8,6 @@ void process_title_input()
     if (INPUT_KEYPRESS(J_START))
     {
         nGameState = GS_INGAME;
-        //gotoxy(7u, 5u);
-        //printf("       ");
-        //gotoxy(5u, 8u);
-        //printf("         ");
     }
 }
 
@@ -113,8 +109,9 @@ void process_game_input()
 
     if (INPUT_KEY(J_UP))
     {
-        if (player.hookState == HS_ATTACHED && player.hookLength > MIN_HOOK_LENGTH)
+        if (player.hookState == HS_ATTACHED && player.hookLength > MIN_HOOK_LENGTH && (player.hookAngle > 243 || player.hookAngle < 12))
         {
+            player.oldHookLength = player.hookLength;
             player.hookLength -= 1;
             uint8_t old_segments = player.hookSegments;
             player.hookSegments = player.hookLength >> 3;
@@ -126,8 +123,9 @@ void process_game_input()
     }
     else if (INPUT_KEY(J_DOWN))
     {
-        if (player.hookState == HS_ATTACHED && player.hookLength < MAX_HOOK_LENGTH)
+        if (player.hookState == HS_ATTACHED && player.hookLength < MAX_HOOK_LENGTH && (player.hookAngle > 243 || player.hookAngle < 12))
         {
+            player.oldHookLength = player.hookLength;
             player.hookLength += 1;
             player.hookSegments = player.hookLength >> 3;
         }
@@ -156,6 +154,7 @@ void process_game_input()
             {
                 player.hookState = HS_ATTACHED;
                 player.hookLength = isqrt(xSqr + ySqr);
+                player.oldHookLength = player.hookLength;
                 player.hookSegments = player.hookLength >> 3;
                 player.angularVel = player.xSpd >> 2;
                 player.xSpd = 0;
@@ -164,6 +163,7 @@ void process_game_input()
             {
                 player.hookState = HS_LAUNCHED;
                 player.hookLength = 64;
+                player.oldHookLength = player.hookLength;
                 player.hookSegments = 8;
             }
         }
@@ -173,8 +173,8 @@ void process_game_input()
         if (player.hookState == HS_ATTACHED)
         {
             player.hookState = HS_STOWED;
-            player.xSpd = ((player.angularVel + (player.angularVel >> 1)) * COS(player.hookAngle)) >> 7;
-            player.ySpd = ((player.angularVel + (player.angularVel >> 1)) * -SIN(player.hookAngle)) >> 7;
+            player.xSpd = (((player.angularVel)) * COS(player.hookAngle)) >> 7;
+            player.ySpd = (((player.angularVel)) * -SIN(player.hookAngle)) >> 7;
         }
         else if (player.hookState == HS_LAUNCHED)
         {
@@ -188,12 +188,8 @@ void process_pause_input()
     if (INPUT_KEYPRESS(J_START))
     {
         nGameState = GS_INGAME;
-        //gotoxy(7u, 5u);
-        //printf("       ");
     }
     else
     {
-        //gotoxy(7u, 5u);
-        //printf("PAUSE");
     }
 }

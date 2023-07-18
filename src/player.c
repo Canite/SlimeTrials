@@ -17,7 +17,6 @@ void init_player()
     player.angularAcc = 0;
     player.angularVel = 0;
     player.facing = 0;
-    player.rot = 0;
     player.animIndex = 0;
     player.animFrame = 0;
     player.numAnimFrames = 1;
@@ -28,6 +27,7 @@ void init_player()
     player.hookY = 0;
     player.hookAngle = 0;
     player.hookLength = 0;
+    player.oldHookLength = 0;
     player.hookSegments = 0;
 }
 
