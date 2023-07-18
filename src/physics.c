@@ -174,6 +174,26 @@ void apply_physics()
         // Hook length needs to be << 4 and sin(a) needs >> 7, so after mult it's >> 3
         player.x = ((player.hookLength * SIN(player.hookAngle)) >> 3) + player.hookX;
         player.y = ((player.hookLength * COS(player.hookAngle)) >> 3) + player.hookY;
+        uint8_t col_flags = check_tilemap_collision(player.x, player.y, test_tiles, test_tile_width);
+        if (col_flags)
+        {
+            while (col_flags)
+            {
+                if (player.angularVel < 0)
+                {
+                    player.hookAngle += 1;
+                }
+                else
+                {
+                    player.hookAngle -= 1;
+                }
+
+                player.x = ((player.hookLength * SIN(player.hookAngle)) >> 3) + player.hookX;
+                player.y = ((player.hookLength * COS(player.hookAngle)) >> 3) + player.hookY;
+                col_flags = check_tilemap_collision(player.x, player.y, test_tiles, test_tile_width);
+            }
+            player.angularVel = -1 * (player.angularVel >> 1);
+        }
 
         // Decelerate, otherwise we'll swing back and forth forever
         if (player.angularVel < 0)
