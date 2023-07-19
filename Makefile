@@ -22,6 +22,7 @@ RGBGFX = $(RGBDS_HOME)rgbgfx
 # For example, you can uncomment the line below to turn on debug output
 LCCFLAGS += -debug # Uncomment to enable debug output
 # LCCFLAGS += -v     # Uncomment for lcc verbose output
+RGBGFXFLAGS += -C
 
 
 # You can set the name of the .gb ROM file here

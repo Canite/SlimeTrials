@@ -10,6 +10,8 @@
 #include "utils.h"
 #include "gfx.h"
 
+#include "../res/test.h"
+
 // Game state
 enum GameState
 {
@@ -19,9 +21,22 @@ enum GameState
     GS_PAUSE
 };
 
-extern uint16_t nGameState;
-extern uint16_t gameFrame;
+struct Game
+{
+    uint16_t gameState;
+    uint16_t gameFrame;
+    char* tileMap;
+    uint8_t tileMapW;
+    uint8_t tileMapH;
+    uint8_t mapX;
+    uint8_t mapY;
+    uint8_t oldMapX;
+    uint8_t oldMapY;
+};
 
+extern struct Game game;
+
+void init_game();
 void game_loop();
 
 #endif

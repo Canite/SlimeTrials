@@ -9,7 +9,7 @@ void init_player()
     //set_sprite_tile(2, player.animFrame + 2);
     //set_sprite_tile(3, player.animFrame + 3);
 
-    player.x = player.y = PIXELS_TO_SUBPIXELS(64);
+    player.x = player.y = player.oldX = player.oldY = PIXELS_TO_SUBPIXELS(64);
     player.xSpd = player.ySpd = 0;
     player.w = 8;
     player.h = 8;

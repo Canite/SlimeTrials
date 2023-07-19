@@ -1,5 +1,16 @@
 #include "../include/gfx.h"
 
+struct Camera camera = {0};
+
+void init_camera()
+{
+    camera.x = 0;
+    camera.y = 0;
+    camera.oldX = 0;
+    camera.oldY = 0;
+    camera.redraw = 0;
+}
+
 void clear_background()
 {
     for (uint16_t i = 0; i < 20; i ++)
@@ -11,11 +22,55 @@ void clear_background()
     }
 }
 
+void update_camera()
+{
+    if (camera.redraw)
+    {
+        camera.redraw = 0;
+
+        // update hardware scroll position
+        SCY_REG = camera.y; SCX_REG = camera.x; 
+        // up or down
+        game.mapY = (uint8_t)(camera.y >> 3u);
+        if (game.mapY != game.oldMapY)
+        {
+            if (camera.y < camera.oldY)
+            {
+                set_bkg_submap(game.mapX, game.mapY, MIN(21u, game.tileMapW-game.mapX), 1, game.tileMap, game.tileMapW);
+            }
+            else
+            {
+                if ((game.tileMapH - 18u) > game.mapY) set_bkg_submap(game.mapX, game.mapY + 18u, MIN(21u, game.tileMapW-game.mapX), 1, game.tileMap, game.tileMapW);
+            }
+            game.oldMapY = game.mapY; 
+        }
+
+        // left or right
+        game.mapX = (uint8_t)(camera.x >> 3u);
+        if (game.mapX != game.oldMapX)
+        {
+            if (camera.x < camera.oldX)
+            {
+                set_bkg_submap(game.mapX, game.mapY, 1, MIN(19u, game.tileMapH - game.mapY), game.tileMap, game.tileMapW);
+            }
+            else
+            {
+                if ((game.tileMapW - 20u) > game.mapX) set_bkg_submap(game.mapX + 20u, game.mapY, 1, MIN(19u, game.tileMapH - game.mapY), game.tileMap, game.tileMapW);
+            }
+            game.oldMapX = game.mapX;
+        }
+
+        // set old camera position to current camera position
+        camera.oldX = camera.x;
+        camera.oldY = camera.y;
+    }
+}
+
 void update_game_sprites()
 {
     // Player sprite start
     set_sprite_tile(0, player.animIndex + player.animFrame);
-    if ((gameFrame & player.animSpeed) == player.animSpeed)
+    if ((game.gameFrame & player.animSpeed) == player.animSpeed)
     {
         if (player.animFrame < player.numAnimFrames - 1)
         {
@@ -27,8 +82,8 @@ void update_game_sprites()
         }
     }
 
-    int16_t playerPixelX = SUBPIXELS_TO_PIXELS(player.x);
-    int16_t playerPixelY = SUBPIXELS_TO_PIXELS(player.y);
+    int16_t playerPixelX = SUBPIXELS_TO_PIXELS(player.x) - camera.x;
+    int16_t playerPixelY = SUBPIXELS_TO_PIXELS(player.y) - camera.y;
 
     if (player.facing)
     {
@@ -121,6 +176,8 @@ void draw_hook()
     int16_t p = a - ((player.hookX - player.x) >> 4);
     uint8_t spriteData[16];
     */
+    uint16_t hookPixelX = SUBPIXELS_TO_PIXELS(player.hookX) - camera.x;
+    uint16_t hookPixelY = SUBPIXELS_TO_PIXELS(player.hookY) - camera.y;
     for (uint8_t i = 0; i < player.hookSegments; i++)
     {
         /*
@@ -137,7 +194,7 @@ void draw_hook()
 
         set_sprite_tile(i + 1, HOOK_SPRITE_TILE_INDEX);
         //set_sprite_prop(i + 1, spriteProp);
-        move_sprite(i + 1, (player.hookX >> 4) + (xOffset * i), (player.hookY >> 4) + (yOffset * i));
+        move_sprite(i + 1, hookPixelX + (xOffset * i), hookPixelY + (yOffset * i));
     }
 
     if (abs8(xOffset) + abs8(yOffset) > 14)

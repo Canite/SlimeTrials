@@ -1,28 +1,33 @@
 #include "../include/game.h"
 
-uint16_t nGameState = GS_TITLE_LOAD;
-uint16_t gameFrame = 0;
+struct Game game = {0};
+
+void init_game()
+{
+    game.gameState = GS_TITLE_LOAD;
+    game.gameFrame = 0;
+    game.tileMap = test_tiles;
+    game.tileMapW = test_tile_width;
+    game.tileMapH = test_tile_height;
+    game.mapX = 0;
+    game.mapY = 0;
+    game.oldMapX = 255;
+    game.oldMapY = 255;
+}
 
 void game_loop()
 {
     // Loop forever
     while(TRUE)
     {
-        // Done processing, yield CPU and wait for start of next frame
-        wait_vbl_done();
-
         // Get new inputs
         old_joy = joy;
         joy = joypad();
 
-        switch(nGameState)
+        switch(game.gameState)
         {
             case GS_TITLE_LOAD:
-                //gotoxy(7u, 5u);
-                //printf("UNKNOWN");
-                //gotoxy(5u, 8u);
-                //printf("PRESS START");
-                nGameState = GS_TITLE;
+                game.gameState = GS_TITLE;
 
             case GS_TITLE:
                 process_title_input();
@@ -42,10 +47,12 @@ void game_loop()
                 break;
         }
 
-        gameFrame += 1;
-        // debug
-        //printf("        ");
-        //gotoxy(1u, 1u);
-        //printf("%d %d", player.animIndex, player.animFrame);
+        game.gameFrame += 1;
+
+        // Done processing, yield CPU and wait for start of next frame
+        wait_vbl_done();
+
+        // update camera after vblank
+        update_camera();
     }
 }

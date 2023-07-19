@@ -75,20 +75,20 @@ void apply_physics()
             if (xTmp < 0) xColOffset = MIN(-16, xTmp);
             if (xTmp > 0) xColOffset = MAX(16, xTmp);
 
-            uint8_t col_flags = check_tilemap_collision(player.x + xColOffset, player.y + yColOffset, test_tiles, test_tile_width);
+            uint8_t col_flags = check_tilemap_collision(player.x + xColOffset, player.y + yColOffset);
             player.colFlags = col_flags;
             // Check corners first
             uint8_t cornerCollision = handle_collision_v_corners(yTmp, col_flags);
             if (cornerCollision == 2)
             {
                 yTmp = 0;
-                col_flags = check_tilemap_collision(player.x + xColOffset, player.y, test_tiles, test_tile_width);
+                col_flags = check_tilemap_collision(player.x + xColOffset, player.y);
                 if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
             }
             else if (cornerCollision == 1)
             {
                 if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
-                col_flags = check_tilemap_collision(player.x, player.y + yColOffset, test_tiles, test_tile_width);
+                col_flags = check_tilemap_collision(player.x, player.y + yColOffset);
                 if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
             }
             else
@@ -96,13 +96,13 @@ void apply_physics()
                 if ((col_flags == (BOT_LEFT_COL | TOP_LEFT_COL)) || (col_flags == (BOT_RIGHT_COL | TOP_RIGHT_COL)))
                 {
                     if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
-                    col_flags = check_tilemap_collision(player.x, player.y + yColOffset, test_tiles, test_tile_width);
+                    col_flags = check_tilemap_collision(player.x, player.y + yColOffset);
                     if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
                 }
                 else
                 {
                     if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
-                    col_flags = check_tilemap_collision(player.x + xColOffset, player.y, test_tiles, test_tile_width);
+                    col_flags = check_tilemap_collision(player.x + xColOffset, player.y);
                     if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
                 }
             }
@@ -143,6 +143,14 @@ void apply_physics()
             {
                 player.xSpd -= X_DECELERATION_IN_SUBPIXELS; 
             }
+
+            if (player.animIndex != AIR_IDLE_ANIM_INDEX)
+            {
+                player.animIndex = AIR_IDLE_ANIM_INDEX;
+                player.numAnimFrames = AIR_IDLE_ANIM_FRAMES;
+                player.animSpeed = AIR_IDLE_ANIM_SPEED;
+                player.animFrame = 0;
+            }
         }
     }
     // Hook physics
@@ -155,15 +163,16 @@ void apply_physics()
         if (player.angularAcc < 0)
         {
             player.angularAcc = -1 * player.angularAcc;
-            player.angularAcc /= (player.hookSegments << 1);
+            player.angularAcc /= (player.hookSegments + (player.hookSegments >> 2));
         }
         else
         {
-            player.angularAcc /= (player.hookSegments << 1);
+            player.angularAcc /= (player.hookSegments + (player.hookSegments >> 2));
             player.angularAcc = -1 * player.angularAcc;
         }
 
-        player.angularVel += player.angularAcc + sign(player.angularAcc);
+        if (sign(player.angularAcc) != sign(player.angularVel)) player.angularAcc += -(player.angularAcc >> 2);
+        player.angularVel += player.angularAcc;
         player.angularVel = CLAMP(player.angularVel, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
 
         // Taper off to angle 0 even if there is no more velocity
@@ -171,12 +180,12 @@ void apply_physics()
         // unless we are blocked by a wall, then we can't settle to 0
         int8_t angleSettleAlignment = 0;
         uint8_t oldAngle = player.hookAngle;
-        if (player.angularVel >> 1 == 0 && player.hookAngle > 0 && player.hookAngle <= 8)
+        if (player.angularVel >> 4 == 0 && player.hookAngle > 0 && player.hookAngle <= 9)
         {
             player.hookAngle -= 1;
             angleSettleAlignment = 1;
         }
-        else if (player.angularVel >> 1 == 0  && player.hookAngle > 247 /* && player.hookAngle <= 255 //always true */)
+        else if (player.angularVel >> 4 == 0  && player.hookAngle >= 246 /* && player.hookAngle <= 255 //always true */)
         {
             player.hookAngle += 1;
             angleSettleAlignment = -1;
@@ -191,15 +200,15 @@ void apply_physics()
         int16_t yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
         player.x = player.hookX + xOffset;
         player.y = player.hookY + yOffset;
-        uint8_t col_flags = check_tilemap_collision(player.x, player.y, test_tiles, test_tile_width);
+        uint8_t col_flags = check_tilemap_collision(player.x, player.y);
         uint8_t nAttempts = 12;
-        uint8_t tmpAngle = player.hookAngle;
+        int8_t tmpAngle = 0;
         int8_t angularVelSign = sign(player.angularVel);
         if (col_flags)
         {
             while (col_flags && nAttempts > 0)
             {
-                if (angleSettleAlignment == 0)
+                if (angleSettleAlignment == 0 || player.oldHookLength != player.hookLength)
                 {
                     if (angularVelSign < 0)
                     {
@@ -215,16 +224,17 @@ void apply_physics()
                     tmpAngle += angleSettleAlignment;
                 }
 
-                xOffset = (player.hookLength * SIN(tmpAngle)) >> 3;
-                yOffset = (player.hookLength * COS(tmpAngle)) >> 3;
+                xOffset = (player.hookLength * SIN(player.hookAngle + tmpAngle)) >> 3;
+                yOffset = (player.hookLength * COS(player.hookAngle + tmpAngle)) >> 3;
                 player.x = player.hookX + xOffset;
                 player.y = player.hookY + yOffset;
-                col_flags = check_tilemap_collision(player.x, player.y, test_tiles, test_tile_width);
+                col_flags = check_tilemap_collision(player.x, player.y);
                 nAttempts -= 1;
-                if (nAttempts == 6)
+                // If we're adjusting hook length, check both directions for a valid path
+                if (col_flags && (nAttempts & 1u) && player.oldHookLength != player.hookLength)
                 {
-                    tmpAngle = player.hookAngle;
-                    angularVelSign = -1 * angularVelSign;
+                    tmpAngle = -tmpAngle + sign(tmpAngle);
+                    angularVelSign = -angularVelSign;
                     if (angularVelSign == 0) angularVelSign = -1;
                 }
             }
@@ -244,8 +254,8 @@ void apply_physics()
             }
             else
             {
-                player.hookAngle = tmpAngle;
-                player.angularVel = -1 * (player.angularVel >> 1);
+                player.hookAngle = player.hookAngle + tmpAngle;
+                player.angularVel = -(player.angularVel >> 2);
             }
         }
 
@@ -258,6 +268,19 @@ void apply_physics()
         {
             player.angularVel -= 1;
         }
+    }
+
+    if (player.x != player.oldX || player.y != player.oldY)
+    {
+        player.oldX = player.x;
+        player.oldY = player.y;
+
+        uint16_t playerPixelX = (player.x >> 4);
+        uint16_t playerPixelY = (player.y >> 4);
+
+        if (playerPixelX > 76) camera.x = playerPixelX - 76;
+        if (playerPixelY > 144) camera.y = playerPixelY - 144;
+        camera.redraw = 1;
     }
 }
 

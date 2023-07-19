@@ -12,6 +12,8 @@ struct Player
 {
     uint16_t x;
     uint16_t y;
+    uint16_t oldX;
+    uint16_t oldY;
     uint8_t w;
     uint8_t h;
     int16_t xSpd;

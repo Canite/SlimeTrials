@@ -7,7 +7,7 @@ void process_title_input()
 {
     if (INPUT_KEYPRESS(J_START))
     {
-        nGameState = GS_INGAME;
+        game.gameState = GS_INGAME;
     }
 }
 
@@ -15,7 +15,7 @@ void process_game_input()
 {
     if (INPUT_KEYPRESS(J_START))
     {
-        nGameState = GS_PAUSE;
+        game.gameState = GS_PAUSE;
         return;
     }
 
@@ -38,7 +38,7 @@ void process_game_input()
         {
             if (player.angularVel > -MAX_ANGULAR_VELOCITY)
             {
-                player.angularVel -= INPUT_ANGULAR_ACC;
+                player.angularVel -= (((MAX_HOOK_LENGTH - player.hookLength) >> 4) + INPUT_ANGULAR_ACC);
             }
         }
         else
@@ -66,7 +66,7 @@ void process_game_input()
         {
             if (player.angularVel < MAX_ANGULAR_VELOCITY)
             {
-                player.angularVel += INPUT_ANGULAR_ACC;
+                player.angularVel += (((MAX_HOOK_LENGTH - player.hookLength) >> 4) + INPUT_ANGULAR_ACC);
             }
         }
         else
@@ -166,6 +166,14 @@ void process_game_input()
                 player.oldHookLength = player.hookLength;
                 player.hookSegments = 8;
             }
+
+            if (player.animIndex != AIR_IDLE_ANIM_INDEX)
+            {
+                player.animIndex = AIR_IDLE_ANIM_INDEX;
+                player.numAnimFrames = AIR_IDLE_ANIM_FRAMES;
+                player.animSpeed = AIR_IDLE_ANIM_SPEED;
+                player.animFrame = 0;
+            }
         }
     }
     else if (INPUT_KEYRELEASE(J_B))
@@ -174,7 +182,9 @@ void process_game_input()
         {
             player.hookState = HS_STOWED;
             player.xSpd = (((player.angularVel)) * COS(player.hookAngle)) >> 7;
+            player.xSpd += sign(player.xSpd) << 1;
             player.ySpd = (((player.angularVel)) * -SIN(player.hookAngle)) >> 7;
+            player.ySpd += sign(player.ySpd) << 1;
         }
         else if (player.hookState == HS_LAUNCHED)
         {
@@ -187,7 +197,7 @@ void process_pause_input()
 {
     if (INPUT_KEYPRESS(J_START))
     {
-        nGameState = GS_INGAME;
+        game.gameState = GS_INGAME;
     }
     else
     {
