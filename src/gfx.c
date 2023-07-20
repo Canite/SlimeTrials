@@ -197,7 +197,7 @@ void draw_hook()
         move_sprite(i + 1, hookPixelX + (xOffset * i), hookPixelY + (yOffset * i));
     }
 
-    if (abs8(xOffset) + abs8(yOffset) > 14)
+    if ((abs8(xOffset) + abs8(yOffset)) * player.hookSegments > 80)
     {
         hide_sprite(HOOK_SPRITE_INDEX + player.hookSegments - 1);
     }

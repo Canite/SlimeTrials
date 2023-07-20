@@ -27,6 +27,7 @@ struct Player
     uint8_t numAnimFrames;
     uint8_t animSpeed;
     uint8_t grounded;
+    uint8_t fallDelay;
     uint8_t hookState;
     uint16_t hookX;
     uint16_t hookY;
@@ -55,10 +56,18 @@ enum HookState
 #define GROUND_MOVE_ANIM_FRAMES  4
 #define GROUND_MOVE_ANIM_SPEED  7
 
+#define CROUCH_ANIM_INDEX 6
+#define CROUCH_ANIM_FRAMES 1
+#define CROUCH_ANIM_SPEED 1
+
+#define LOOK_ANIM_INDEX 7
+#define LOOK_ANIM_FRAMES 1
+#define LOOK_ANIM_SPEED 1
+
 #define PLAYER_SPRITE_INDEX 0
 #define PLAYER_SPRITE_TILE_INDEX 0
 #define HOOK_SPRITE_INDEX 1
-#define HOOK_SPRITE_TILE_INDEX 6
+#define HOOK_SPRITE_TILE_INDEX 8
 
 extern struct Player player;
 

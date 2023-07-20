@@ -38,7 +38,7 @@ void process_game_input()
         {
             if (player.angularVel > -MAX_ANGULAR_VELOCITY)
             {
-                player.angularVel -= (((MAX_HOOK_LENGTH - player.hookLength) >> 4) + INPUT_ANGULAR_ACC);
+                player.angularVel -= (((MAX_HOOK_LENGTH - player.hookLength) >> 2) + INPUT_ANGULAR_ACC);
             }
         }
         else
@@ -66,7 +66,7 @@ void process_game_input()
         {
             if (player.angularVel < MAX_ANGULAR_VELOCITY)
             {
-                player.angularVel += (((MAX_HOOK_LENGTH - player.hookLength) >> 4) + INPUT_ANGULAR_ACC);
+                player.angularVel += (((MAX_HOOK_LENGTH - player.hookLength) >> 2) + INPUT_ANGULAR_ACC);
             }
         }
         else
@@ -90,16 +90,19 @@ void process_game_input()
         }
     }
 
-    // check button keypress
-    if (player.grounded && INPUT_KEYPRESS(J_A))
+    if (INPUT_KEYPRESS(J_A))
     {
-        player.ySpd = -JUMP_ACCELERATION_IN_SUBPIXELS;
-        if (player.animIndex != AIR_IDLE_ANIM_INDEX)
+        if (player.grounded || player.fallDelay > 0)
         {
-            player.animIndex = AIR_IDLE_ANIM_INDEX;
-            player.numAnimFrames = AIR_IDLE_ANIM_FRAMES;
-            player.animSpeed = AIR_IDLE_ANIM_SPEED;
-            player.animFrame = 0;
+            player.ySpd = -JUMP_ACCELERATION_IN_SUBPIXELS;
+            player.fallDelay = 0;
+            if (player.animIndex != AIR_IDLE_ANIM_INDEX)
+            {
+                player.animIndex = AIR_IDLE_ANIM_INDEX;
+                player.numAnimFrames = AIR_IDLE_ANIM_FRAMES;
+                player.animSpeed = AIR_IDLE_ANIM_SPEED;
+                player.animFrame = 0;
+            }
         }
     }
     else if (player.ySpd < 0 && !player.grounded && INPUT_KEYRELEASE(J_A))
@@ -120,6 +123,16 @@ void process_game_input()
                 hide_sprite(HOOK_SPRITE_INDEX + player.hookSegments);
             }
         }
+        else if (player.grounded && player.xSpd == 0)
+        {
+            if (player.animIndex != LOOK_ANIM_INDEX)
+            {
+                player.animIndex = LOOK_ANIM_INDEX;
+                player.numAnimFrames = LOOK_ANIM_FRAMES;
+                player.animSpeed = LOOK_ANIM_SPEED;
+                player.animFrame = 0;
+            }
+        }
     }
     else if (INPUT_KEY(J_DOWN))
     {
@@ -129,42 +142,90 @@ void process_game_input()
             player.hookLength += 1;
             player.hookSegments = player.hookLength >> 3;
         }
+        else if (player.grounded && player.xSpd == 0)
+        {
+            if (player.animIndex != CROUCH_ANIM_INDEX)
+            {
+                player.animIndex = CROUCH_ANIM_INDEX;
+                player.numAnimFrames = CROUCH_ANIM_FRAMES;
+                player.animSpeed = CROUCH_ANIM_SPEED;
+                player.animFrame = 0;
+            }
+        }
     }
+
+    if (INPUT_KEYRELEASE(J_UP))
+    {
+        if (player.animIndex == LOOK_ANIM_INDEX)
+        {
+            player.animIndex = GROUND_IDLE_ANIM_INDEX;
+            player.numAnimFrames = GROUND_IDLE_ANIM_FRAMES;
+            player.animSpeed = GROUND_IDLE_ANIM_SPEED;
+            player.animFrame = 0;
+        }
+    }
+
+    if (INPUT_KEYRELEASE(J_DOWN))
+    {
+        if (player.animIndex == CROUCH_ANIM_INDEX)
+        {
+            player.animIndex = GROUND_IDLE_ANIM_INDEX;
+            player.numAnimFrames = GROUND_IDLE_ANIM_FRAMES;
+            player.animSpeed = GROUND_IDLE_ANIM_SPEED;
+            player.animFrame = 0;
+        }
+    }
+
 
     if (INPUT_KEYPRESS(J_B))
     {
+        player.fallDelay = 0;
         if (player.hookState != HS_ATTACHED)
         {
+            int16_t xCheck = PIXELS_TO_SUBPIXELS(4);
             //player.hookState = HS_LAUNCHED;
             if (player.facing)
             {
-                player.hookX = player.x - PIXELS_TO_SUBPIXELS(50);
+                xCheck = PIXELS_TO_SUBPIXELS(-4);
+                //player.hookX = player.x - PIXELS_TO_SUBPIXELS(50);
                 player.hookAngle = ANGLE_45DEG;
             }
             else
             {
-                player.hookX = player.x + PIXELS_TO_SUBPIXELS(50);
+                //player.hookX = player.x + PIXELS_TO_SUBPIXELS(50);
                 player.hookAngle = ANGLE_315DEG;
             }
-            player.hookY = player.y - PIXELS_TO_SUBPIXELS(50);
-            uint16_t xSqr = (SUBPIXELS_TO_PIXELS(abs_sub(player.x, player.hookX)) * SUBPIXELS_TO_PIXELS(abs_sub(player.x, player.hookX)));
-            uint16_t ySqr = (SUBPIXELS_TO_PIXELS(abs_sub(player.y, player.hookY)) * SUBPIXELS_TO_PIXELS(abs_sub(player.y, player.hookY)));
 
-            if (xSqr + ySqr < MAX_HOOK_DISTANCE)
+            int16_t yCheck = PIXELS_TO_SUBPIXELS(-4);
+            uint8_t col_flags = 0;
+            uint16_t xTmp = 4;
+            uint16_t yTmp = 0;
+            while (!col_flags && ((abs16(xTmp) + abs16(yTmp)) < MAX_HOOK_DISTANCE))
             {
+                xTmp += xCheck;
+                yTmp += yCheck;
+                col_flags = check_tilemap_collision(player.x + xTmp, player.y + yTmp);
+            }
+
+            if ((abs16(xTmp) + abs16(yTmp)) >= MAX_HOOK_DISTANCE || (abs16(xTmp) + abs16(yTmp)) <= MIN_HOOK_DISTANCE)
+            {
+                player.hookState = HS_LAUNCHED;
+                player.hookLength = 64;
+                player.oldHookLength = player.hookLength;
+                player.hookSegments = 8;
+            }
+            else
+            {
+                player.hookX = player.x + xTmp;
+                player.hookY = player.y + yTmp;
+                uint16_t xSqr = (SUBPIXELS_TO_PIXELS(abs_sub(player.x, player.hookX)) * SUBPIXELS_TO_PIXELS(abs_sub(player.x, player.hookX)));
+                uint16_t ySqr = (SUBPIXELS_TO_PIXELS(abs_sub(player.y, player.hookY)) * SUBPIXELS_TO_PIXELS(abs_sub(player.y, player.hookY)));
                 player.hookState = HS_ATTACHED;
                 player.hookLength = isqrt(xSqr + ySqr);
                 player.oldHookLength = player.hookLength;
                 player.hookSegments = player.hookLength >> 3;
                 player.angularVel = player.xSpd >> 2;
                 player.xSpd = 0;
-            }
-            else
-            {
-                player.hookState = HS_LAUNCHED;
-                player.hookLength = 64;
-                player.oldHookLength = player.hookLength;
-                player.hookSegments = 8;
             }
 
             if (player.animIndex != AIR_IDLE_ANIM_INDEX)
@@ -174,6 +235,8 @@ void process_game_input()
                 player.animSpeed = AIR_IDLE_ANIM_SPEED;
                 player.animFrame = 0;
             }
+
+            player.grounded = 0;
         }
     }
     else if (INPUT_KEYRELEASE(J_B))

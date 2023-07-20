@@ -26,8 +26,8 @@ void main(void)
     init_game();
     init_camera();
 
-    set_sprite_data(0, 6, slime);
-    set_sprite_data(6, 16, hook);
+    set_sprite_data(0, 8, slime);
+    set_sprite_data(8, 1, hook);
     init_player();
 
     set_bkg_data(0, 4, background_tiles);

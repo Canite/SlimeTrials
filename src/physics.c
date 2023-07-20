@@ -39,6 +39,11 @@ uint16_t isqrt(uint16_t x) NONBANKED
 
 void apply_physics()
 {
+    if (player.fallDelay)
+    {
+        player.fallDelay -= 1;
+    }
+
     // Unhooked physics
     if (player.hookState != HS_ATTACHED)
     {
@@ -150,6 +155,7 @@ void apply_physics()
                 player.numAnimFrames = AIR_IDLE_ANIM_FRAMES;
                 player.animSpeed = AIR_IDLE_ANIM_SPEED;
                 player.animFrame = 0;
+                player.fallDelay = 6;
             }
         }
     }

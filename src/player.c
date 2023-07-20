@@ -22,6 +22,7 @@ void init_player()
     player.numAnimFrames = 1;
     player.animSpeed = 1;
     player.grounded = 0;
+    player.fallDelay = 0;
     player.hookState = HS_STOWED;
     player.hookX = 0;
     player.hookY = 0;
