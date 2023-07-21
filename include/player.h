@@ -1,10 +1,11 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include <stdint.h>
 #include <gb/gb.h>
 #include <gbdk/platform.h>
 #include <gbdk/console.h>
-#include <stdint.h>
+#include <gbdk/incbin.h>
 
 #include "utils.h"
 
@@ -82,6 +83,8 @@ enum LookState
 #define HOOK_INDICATOR_SPRITE_TILE_INDEX 9
 
 extern struct Player player;
+INCBIN_EXTERN(slime)
+INCBIN_EXTERN(hook)
 
 void init_player();
 void handle_input();

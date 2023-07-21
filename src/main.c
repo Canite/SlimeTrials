@@ -8,10 +8,6 @@
 #include "../include/game.h"
 #include "../include/gfx.h"
 
-INCBIN(slime, "res/slime.2bpp")
-INCBIN_EXTERN(slime)
-INCBIN(hook, "res/hook.2bpp")
-INCBIN_EXTERN(hook)
 INCBIN(background_tiles, "res/background_tiles.2bpp")
 INCBIN_EXTERN(background_tiles)
 
@@ -25,9 +21,6 @@ void main(void)
 
     init_game();
     init_camera();
-
-    set_sprite_data(0, 8, slime);
-    set_sprite_data(8, 2, hook);
     init_player();
 
     set_bkg_data(0, 4, background_tiles);

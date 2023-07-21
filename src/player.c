@@ -1,9 +1,15 @@
 #include "../include/player.h"
 
+INCBIN(slime, "res/slime.2bpp")
+INCBIN(hook, "res/hook.2bpp")
+
 struct Player player = {0};
 
 void init_player()
 {
+    set_sprite_data(0, 8, slime);
+    set_sprite_data(8, 2, hook);
+
     set_sprite_tile(0, player.animFrame);
     //set_sprite_tile(1, player.animFrame + 1);
     //set_sprite_tile(2, player.animFrame + 2);
