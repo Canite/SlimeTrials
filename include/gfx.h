@@ -27,5 +27,6 @@ void clear_background();
 void update_game_sprites();
 void draw_hook();
 void hide_hook();
+void draw_hook_indicator();
 
 #endif

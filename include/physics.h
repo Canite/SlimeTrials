@@ -19,10 +19,12 @@
 #define JUMP_ACCELERATION_IN_SUBPIXELS 48
 #define INPUT_ANGULAR_ACC 5
 #define MAX_ANGULAR_VELOCITY 64
-#define MIN_HOOK_DISTANCE 192 // 8 pixels
-#define MAX_HOOK_DISTANCE 1984 // 64 pixels
-#define MAX_HOOK_LENGTH 64 // 64 pixels
+#define MIN_HOOK_DISTANCE 112 // 6 pixels
+#define MAX_HOOK_DISTANCE 1792 // 80 pixels
+#define MAX_STRAIGHT_HOOK_DISTANCE 1280 // 80 pixels
+#define MAX_HOOK_LENGTH 80 // 80 pixels
 #define MIN_HOOK_LENGTH 12 // 12 pixels
+#define MAX_ADJUST_ANGLE 18
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))

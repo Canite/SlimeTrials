@@ -112,7 +112,7 @@ void process_game_input()
 
     if (INPUT_KEY(J_UP))
     {
-        if (player.hookState == HS_ATTACHED && player.hookLength > MIN_HOOK_LENGTH && (player.hookAngle > 243 || player.hookAngle < 12))
+        if (player.hookState == HS_ATTACHED && player.hookLength > MIN_HOOK_LENGTH && (player.hookAngle > (255 - MAX_ADJUST_ANGLE) || player.hookAngle < MAX_ADJUST_ANGLE))
         {
             player.oldHookLength = player.hookLength;
             player.hookLength -= 1;
@@ -131,12 +131,13 @@ void process_game_input()
                 player.numAnimFrames = LOOK_ANIM_FRAMES;
                 player.animSpeed = LOOK_ANIM_SPEED;
                 player.animFrame = 0;
+                player.lookState = LS_UP;
             }
         }
     }
     else if (INPUT_KEY(J_DOWN))
     {
-        if (player.hookState == HS_ATTACHED && player.hookLength < MAX_HOOK_LENGTH && (player.hookAngle > 243 || player.hookAngle < 12))
+        if (player.hookState == HS_ATTACHED && player.hookLength < MAX_HOOK_LENGTH && (player.hookAngle > (255 - MAX_ADJUST_ANGLE) || player.hookAngle < MAX_ADJUST_ANGLE))
         {
             player.oldHookLength = player.hookLength;
             player.hookLength += 1;
@@ -150,8 +151,13 @@ void process_game_input()
                 player.numAnimFrames = CROUCH_ANIM_FRAMES;
                 player.animSpeed = CROUCH_ANIM_SPEED;
                 player.animFrame = 0;
+                player.lookState = LS_DOWN;
             }
         }
+    }
+    else
+    {
+        player.lookState = LS_NONE;
     }
 
     if (INPUT_KEYRELEASE(J_UP))
@@ -162,6 +168,7 @@ void process_game_input()
             player.numAnimFrames = GROUND_IDLE_ANIM_FRAMES;
             player.animSpeed = GROUND_IDLE_ANIM_SPEED;
             player.animFrame = 0;
+            player.lookState = LS_NONE;
         }
     }
 
@@ -173,6 +180,7 @@ void process_game_input()
             player.numAnimFrames = GROUND_IDLE_ANIM_FRAMES;
             player.animSpeed = GROUND_IDLE_ANIM_SPEED;
             player.animFrame = 0;
+            player.lookState = LS_NONE;
         }
     }
 
@@ -183,31 +191,34 @@ void process_game_input()
         if (player.hookState != HS_ATTACHED)
         {
             int16_t xCheck = PIXELS_TO_SUBPIXELS(4);
-            //player.hookState = HS_LAUNCHED;
-            if (player.facing)
+            int16_t yCheck = PIXELS_TO_SUBPIXELS(-4);
+            uint16_t maxDist = MAX_HOOK_DISTANCE;
+            player.hookAngle = ANGLE_315DEG;
+
+            if (player.lookState == LS_UP)
+            {
+                xCheck = 0;
+                yCheck = PIXELS_TO_SUBPIXELS(-8);
+                maxDist = MAX_STRAIGHT_HOOK_DISTANCE;
+                player.hookAngle = ANGLE_0DEG;
+            }
+            else if (player.facing)
             {
                 xCheck = PIXELS_TO_SUBPIXELS(-4);
-                //player.hookX = player.x - PIXELS_TO_SUBPIXELS(50);
                 player.hookAngle = ANGLE_45DEG;
             }
-            else
-            {
-                //player.hookX = player.x + PIXELS_TO_SUBPIXELS(50);
-                player.hookAngle = ANGLE_315DEG;
-            }
 
-            int16_t yCheck = PIXELS_TO_SUBPIXELS(-4);
             uint8_t col_flags = 0;
-            uint16_t xTmp = 4;
-            uint16_t yTmp = 0;
-            while (!col_flags && ((abs16(xTmp) + abs16(yTmp)) < MAX_HOOK_DISTANCE))
+            int16_t xTmp = 0;//PIXELS_TO_SUBPIXELS(4);
+            int16_t yTmp = 0;
+            while (!col_flags && ((abs16(xTmp) + abs16(yTmp)) < maxDist))
             {
                 xTmp += xCheck;
                 yTmp += yCheck;
                 col_flags = check_tilemap_collision(player.x + xTmp, player.y + yTmp);
             }
 
-            if ((abs16(xTmp) + abs16(yTmp)) >= MAX_HOOK_DISTANCE || (abs16(xTmp) + abs16(yTmp)) <= MIN_HOOK_DISTANCE)
+            if ((abs16(xTmp) + abs16(yTmp)) >= maxDist || (abs16(xTmp) + abs16(yTmp)) <= MIN_HOOK_DISTANCE)
             {
                 player.hookState = HS_LAUNCHED;
                 player.hookLength = 64;

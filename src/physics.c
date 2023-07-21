@@ -54,22 +54,22 @@ void apply_physics()
         player.grounded = 0;
         while (xTmp != player.xSpd || yTmp != player.ySpd)
         {
-            if ((xSpdSign < 0 && (xTmp - 128) < player.xSpd) || (xSpdSign >= 0 && (xTmp + 128) > player.xSpd))
+            if ((xSpdSign < 0 && (xTmp - 112) < player.xSpd) || (xSpdSign >= 0 && (xTmp + 112) > player.xSpd))
             {
                 xTmp = player.xSpd;
             }
             else
             {
-                xTmp += xSpdSign << 7;
+                xTmp += (((player.xSpd) < (0)) ? (-112) : (112));
             }
 
-            if ((ySpdSign < 0 && (yTmp - 128) < player.ySpd) || (ySpdSign >= 0 && (yTmp + 128) > player.ySpd))
+            if ((ySpdSign < 0 && (yTmp - 112) < player.ySpd) || (ySpdSign >= 0 && (yTmp + 112) > player.ySpd))
             {
                 yTmp = player.ySpd;
             }
             else
             {
-                yTmp += ySpdSign << 7;
+                yTmp += (((player.ySpd) < (0)) ? (-112) : (112));
             }
 
             // Check at least 1 pixel offset

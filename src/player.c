@@ -17,6 +17,7 @@ void init_player()
     player.angularAcc = 0;
     player.angularVel = 0;
     player.facing = 0;
+    player.lookState = LS_NONE;
     player.animIndex = 0;
     player.animFrame = 0;
     player.numAnimFrames = 1;

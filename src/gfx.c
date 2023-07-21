@@ -96,13 +96,14 @@ void update_game_sprites()
         move_sprite(0, playerPixelX, playerPixelY);
     }
 
-    if (player.hookState != HS_STOWED)
+    if (player.hookState == HS_ATTACHED)
     {
         draw_hook();
     }
     else
     {
         hide_hook();
+        draw_hook_indicator();
     }
 
     // Player sprite end
@@ -197,9 +198,13 @@ void draw_hook()
         move_sprite(i + 1, hookPixelX + (xOffset * i), hookPixelY + (yOffset * i));
     }
 
-    if ((abs8(xOffset) + abs8(yOffset)) * player.hookSegments > 80)
+    uint8_t totalOffset = (abs8(xOffset) + abs8(yOffset)) * player.hookSegments;
+    uint8_t hiddenSegments = 1;
+    while (totalOffset > 70)
     {
-        hide_sprite(HOOK_SPRITE_INDEX + player.hookSegments - 1);
+        hide_sprite(HOOK_SPRITE_INDEX + player.hookSegments - hiddenSegments);
+        totalOffset -= 70;
+        hiddenSegments += 1;
     }
 }
 
@@ -287,5 +292,56 @@ void hide_hook()
     for (uint8_t i = 0; i < player.hookSegments; i++)
     {
         hide_sprite(HOOK_SPRITE_INDEX + i);
+    }
+
+    player.hookSegments = 0;
+}
+
+void draw_hook_indicator()
+{
+    if ((game.gameFrame & 31u) == 31u)
+    {
+        int16_t xCheck = PIXELS_TO_SUBPIXELS(4);
+        int16_t yCheck = PIXELS_TO_SUBPIXELS(-4);
+        uint16_t maxDist = MAX_HOOK_DISTANCE;
+
+        if (player.lookState == LS_UP)
+        {
+            xCheck = 0;
+            yCheck = PIXELS_TO_SUBPIXELS(-8);
+            maxDist = MAX_STRAIGHT_HOOK_DISTANCE;
+        }
+        else if (player.facing)
+        {
+            xCheck = PIXELS_TO_SUBPIXELS(-4);
+        }
+
+        uint8_t col_flags = 0;
+        int16_t xTmp = 0;
+        int16_t yTmp = 0;
+
+        while (!col_flags && ((abs16(xTmp) + abs16(yTmp)) < maxDist))
+        {
+            xTmp += xCheck;
+            yTmp += yCheck;
+            col_flags = check_tilemap_collision(player.x + xTmp, player.y + yTmp);
+        }
+
+        if ((abs16(xTmp) + abs16(yTmp)) >= maxDist || (abs16(xTmp) + abs16(yTmp)) <= MIN_HOOK_DISTANCE)
+        {
+            hide_sprite(HOOK_INDICATOR_SPRITE_INDEX);
+        }
+        else
+        {
+            uint16_t indicatorX = SUBPIXELS_TO_PIXELS(player.x + xTmp) - camera.x;
+            uint16_t indicatorY = SUBPIXELS_TO_PIXELS(player.y + yTmp) - camera.y;
+
+            set_sprite_tile(HOOK_INDICATOR_SPRITE_INDEX, HOOK_INDICATOR_SPRITE_TILE_INDEX);
+            move_sprite(HOOK_INDICATOR_SPRITE_INDEX, indicatorX, indicatorY);
+        }
+    }
+    else if (((game.gameFrame + 16) & 31u) == 31u)
+    {
+        hide_sprite(HOOK_INDICATOR_SPRITE_INDEX);
     }
 }

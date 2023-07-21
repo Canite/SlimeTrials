@@ -22,6 +22,7 @@ struct Player
     int16_t angularAcc;
     int16_t angularVel;
     uint8_t facing;
+    uint8_t lookState;
     uint8_t animIndex;
     uint8_t animFrame;
     uint8_t numAnimFrames;
@@ -42,6 +43,13 @@ enum HookState
     HS_STOWED,
     HS_LAUNCHED,
     HS_ATTACHED
+};
+
+enum LookState
+{
+    LS_NONE,
+    LS_DOWN,
+    LS_UP
 };
 
 #define GROUND_IDLE_ANIM_INDEX  0
@@ -66,8 +74,12 @@ enum HookState
 
 #define PLAYER_SPRITE_INDEX 0
 #define PLAYER_SPRITE_TILE_INDEX 0
+
 #define HOOK_SPRITE_INDEX 1
 #define HOOK_SPRITE_TILE_INDEX 8
+
+#define HOOK_INDICATOR_SPRITE_INDEX 1
+#define HOOK_INDICATOR_SPRITE_TILE_INDEX 9
 
 extern struct Player player;
 

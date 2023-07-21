@@ -18,7 +18,7 @@ INCBIN_EXTERN(background_tiles)
 void main(void)
 {
     DISPLAY_OFF;
-    //BGP_REG = OBP0_REG = OBP1_REG = DMG_PALETTE(DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+    //BGP_REG = DMG_PALETTE(DMG_WHITE, DMG_BLACK, DMG_DARK_GRAY, DMG_LITE_GRAY);
     OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY);
     OBP1_REG = DMG_PALETTE(DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
     SPRITES_8x8;
@@ -27,7 +27,7 @@ void main(void)
     init_camera();
 
     set_sprite_data(0, 8, slime);
-    set_sprite_data(8, 1, hook);
+    set_sprite_data(8, 2, hook);
     init_player();
 
     set_bkg_data(0, 4, background_tiles);
