@@ -6,9 +6,10 @@ void init_game()
 {
     game.gameState = GS_TITLE_LOAD;
     game.gameFrame = 0;
-    game.tileMap = test_tiles;
-    game.tileMapW = test_tile_width;
-    game.tileMapH = test_tile_height;
+    game.currentLevel = 0;
+    game.tileMap = 0;
+    game.tileMapW = 0;
+    game.tileMapH = 0;
     game.mapX = 0;
     game.mapY = 0;
     game.oldMapX = 255;
@@ -55,4 +56,10 @@ void game_loop()
         // update camera after vblank
         update_camera();
     }
+}
+
+void start_level(uint8_t level)
+{
+    init_level(level);
+    game.currentLevel = level;
 }

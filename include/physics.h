@@ -4,13 +4,12 @@
 #include "utils.h"
 #include "player.h"
 #include "game.h"
-#include "../res/test.h"
 
 // physics constants
-#define MAX_X_SPEED_IN_SUBPIXELS 42
-#define MAX_X_GROUND_SPEED_IN_SUBPIXELS 28
-#define X_ACCELERATION_IN_SUBPIXELS 3
-#define X_GROUND_ACCELERATION_IN_SUBPIXELS 5
+#define MAX_X_SPEED_IN_SUBPIXELS 28
+#define MAX_X_GROUND_SPEED_IN_SUBPIXELS 24
+#define X_ACCELERATION_IN_SUBPIXELS 2
+#define X_GROUND_ACCELERATION_IN_SUBPIXELS 4
 #define X_DECELERATION_IN_SUBPIXELS 1
 #define X_GROUND_DECELERATION_IN_SUBPIXELS 3
 #define MAX_Y_SPEED_IN_SUBPIXELS 32
@@ -18,13 +17,14 @@
 #define GRAVITY_CONST 3
 #define JUMP_ACCELERATION_IN_SUBPIXELS 48
 #define INPUT_ANGULAR_ACC 5
-#define MAX_ANGULAR_VELOCITY 64
+#define MAX_ANGULAR_VELOCITY 80 // for some reason positive is slower?
+#define MIN_ANGULAR_VELOCITY -60
 #define MIN_HOOK_DISTANCE 112 // 6 pixels
 #define MAX_HOOK_DISTANCE 1792 // 80 pixels
 #define MAX_STRAIGHT_HOOK_DISTANCE 1280 // 80 pixels
 #define MAX_HOOK_LENGTH 80 // 80 pixels
 #define MIN_HOOK_LENGTH 12 // 12 pixels
-#define MAX_ADJUST_ANGLE 18
+#define MAX_ADJUST_ANGLE 24
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))

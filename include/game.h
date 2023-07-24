@@ -9,8 +9,7 @@
 #include "player.h"
 #include "utils.h"
 #include "gfx.h"
-
-#include "../res/test.h"
+#include "levels.h"
 
 // Game state
 enum GameState
@@ -25,6 +24,7 @@ struct Game
 {
     uint16_t gameState;
     uint16_t gameFrame;
+    uint8_t currentLevel;
     char* tileMap;
     uint8_t tileMapW;
     uint8_t tileMapH;
@@ -38,5 +38,6 @@ extern struct Game game;
 
 void init_game();
 void game_loop();
+void start_level(uint8_t level);
 
 #endif

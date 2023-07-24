@@ -86,7 +86,7 @@ extern struct Player player;
 INCBIN_EXTERN(slime)
 INCBIN_EXTERN(hook)
 
-void init_player();
+void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY);
 void handle_input();
 
 #endif

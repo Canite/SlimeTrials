@@ -9,6 +9,8 @@ def main(args):
     tile_data = []
     map_width = 0
     map_height = 0
+    spawn_data = {}
+    goal_data = {}
     output_filename = os.path.basename(args.output)
     with open(args.input, 'r') as json_file:
         j = json.load(json_file)
@@ -16,14 +18,20 @@ def main(args):
             print("Tile data missing layers, invalid file")
             sys.exit()
 
-        tile_layers = j["layers"]
-        if (len(tile_layers) == 0):
+        layers = j["layers"]
+        if (len(layers) == 0):
             print("Tile data layers empty, invalid file")
             sys.exit()
 
-        tile_data = tile_layers[0]["data"]
-        map_width = tile_layers[0]["width"]
-        map_height = tile_layers[0]["height"]
+        tile_data = layers[0]["data"]
+        map_width = layers[0]["width"]
+        map_height = layers[0]["height"]
+
+        if (len(layers) > 2):
+            if (layers[1]["name"] == "spawn"):
+                spawn_data = layers[1]
+            if (layers[2]["name"] == "goal"):
+                goal_data = layers[2]
 
     for i in range(len(tile_data)):
         if tile_data[i] > 0:
@@ -53,6 +61,18 @@ def main(args):
             out_h_file.write(f"#define _{output_filename.upper()}_H\n\n")
             out_h_file.write(f"#define {output_filename}_tile_width  {map_width}\n")
             out_h_file.write(f"#define {output_filename}_tile_height  {map_height}\n")
+
+            if (spawn_data):
+                spawn_x = spawn_data["objects"][0]["x"]
+                spawn_y = spawn_data["objects"][0]["y"]
+                out_h_file.write(f"#define {output_filename}_spawn_x  {spawn_x}\n")
+                out_h_file.write(f"#define {output_filename}_spawn_y  {spawn_y}\n")
+            if (goal_data):
+                goal_x = goal_data["objects"][0]["x"]
+                goal_y = goal_data["objects"][0]["y"]
+                out_h_file.write(f"#define {output_filename}_goal_x  {goal_x}\n")
+                out_h_file.write(f"#define {output_filename}_goal_y  {goal_y}\n")
+
             out_h_file.write(f"extern const unsigned char {output_filename}_tiles[];\n")
             out_h_file.write(f"\n#endif\n")
 

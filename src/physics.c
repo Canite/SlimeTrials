@@ -169,17 +169,17 @@ void apply_physics()
         if (player.angularAcc < 0)
         {
             player.angularAcc = -1 * player.angularAcc;
-            player.angularAcc /= (player.hookSegments + (player.hookSegments >> 2));
+            player.angularAcc /= (player.hookSegments + MAX(player.hookSegments >> 2, 1));
         }
         else
         {
-            player.angularAcc /= (player.hookSegments + (player.hookSegments >> 2));
+            player.angularAcc /= (player.hookSegments + MAX(player.hookSegments >> 2, 1));
             player.angularAcc = -1 * player.angularAcc;
         }
 
-        if (sign(player.angularAcc) != sign(player.angularVel)) player.angularAcc += -(player.angularAcc >> 2);
+        //if (sign(player.angularAcc) != sign(player.angularVel)) player.angularAcc += -(player.angularAcc >> 2);
         player.angularVel += player.angularAcc;
-        player.angularVel = CLAMP(player.angularVel, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
+        player.angularVel = CLAMP(player.angularVel, MIN_ANGULAR_VELOCITY + (player.hookSegments << 1), MAX_ANGULAR_VELOCITY - (player.hookSegments << 1));
 
         // Taper off to angle 0 even if there is no more velocity
         // this ensures that we always settle down to angle 0 with no input

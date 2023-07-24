@@ -8,6 +8,7 @@ void process_title_input()
     if (INPUT_KEYPRESS(J_START))
     {
         game.gameState = GS_INGAME;
+        start_level(1);
     }
 }
 
@@ -36,7 +37,8 @@ void process_game_input()
         } 
         else if (player.hookState == HS_ATTACHED)
         {
-            if (player.angularVel > -MAX_ANGULAR_VELOCITY)
+            if (player.angularVel > MIN_ANGULAR_VELOCITY &&
+               (player.hookLength >= MIN_HOOK_LENGTH && player.hookLength <= MAX_HOOK_LENGTH))
             {
                 player.angularVel -= (((MAX_HOOK_LENGTH - player.hookLength) >> 2) + INPUT_ANGULAR_ACC);
             }
@@ -64,7 +66,8 @@ void process_game_input()
         } 
         else if (player.hookState == HS_ATTACHED)
         {
-            if (player.angularVel < MAX_ANGULAR_VELOCITY)
+            if (player.angularVel < (MAX_ANGULAR_VELOCITY) &&
+               (player.hookLength >= MIN_HOOK_LENGTH && player.hookLength <= MAX_HOOK_LENGTH))
             {
                 player.angularVel += (((MAX_HOOK_LENGTH - player.hookLength) >> 2) + INPUT_ANGULAR_ACC);
             }

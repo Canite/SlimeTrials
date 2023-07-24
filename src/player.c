@@ -5,17 +5,21 @@ INCBIN(hook, "res/hook.2bpp")
 
 struct Player player = {0};
 
-void init_player()
+void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY)
 {
-    set_sprite_data(0, 8, slime);
-    set_sprite_data(8, 2, hook);
+    if (initSprites)
+    {
+        set_sprite_data(0, 8, slime);
+        set_sprite_data(8, 2, hook);
 
-    set_sprite_tile(0, player.animFrame);
-    //set_sprite_tile(1, player.animFrame + 1);
-    //set_sprite_tile(2, player.animFrame + 2);
-    //set_sprite_tile(3, player.animFrame + 3);
+        set_sprite_tile(0, GROUND_IDLE_ANIM_INDEX);
+        //set_sprite_tile(1, player.animFrame + 1);
+        //set_sprite_tile(2, player.animFrame + 2);
+        //set_sprite_tile(3, player.animFrame + 3);
+    }
 
-    player.x = player.y = player.oldX = player.oldY = PIXELS_TO_SUBPIXELS(64);
+    player.x = player.oldX = PIXELS_TO_SUBPIXELS(startX);
+    player.y = player.oldY = PIXELS_TO_SUBPIXELS(startY);
     player.xSpd = player.ySpd = 0;
     player.w = 8;
     player.h = 8;
@@ -24,10 +28,10 @@ void init_player()
     player.angularVel = 0;
     player.facing = 0;
     player.lookState = LS_NONE;
-    player.animIndex = 0;
+    player.animIndex = GROUND_IDLE_ANIM_INDEX;
     player.animFrame = 0;
-    player.numAnimFrames = 1;
-    player.animSpeed = 1;
+    player.numAnimFrames = GROUND_IDLE_ANIM_FRAMES;
+    player.animSpeed = GROUND_IDLE_ANIM_SPEED;
     player.grounded = 0;
     player.fallDelay = 0;
     player.hookState = HS_STOWED;
