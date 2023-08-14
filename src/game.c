@@ -10,6 +10,8 @@ void init_game()
     game.tileMap = 0;
     game.tileMapW = 0;
     game.tileMapH = 0;
+    game.mapPixelW = 0;
+    game.mapPixelH = 0;
     game.mapX = 0;
     game.mapY = 0;
     game.oldMapX = 255;
@@ -62,4 +64,6 @@ void start_level(uint8_t level)
 {
     init_level(level);
     game.currentLevel = level;
+    init_camera();
+    camera.redraw = 1;
 }

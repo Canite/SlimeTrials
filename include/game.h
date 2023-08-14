@@ -28,6 +28,8 @@ struct Game
     char* tileMap;
     uint8_t tileMapW;
     uint8_t tileMapH;
+    uint16_t mapPixelW;
+    uint16_t mapPixelH;
     uint8_t mapX;
     uint8_t mapY;
     uint8_t oldMapX;

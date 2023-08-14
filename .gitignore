@@ -4,3 +4,5 @@ res/*.2bpp
 res/*.c
 res/*.h
 obj/
+.cache/
+compiledb_venv/

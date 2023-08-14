@@ -2,6 +2,7 @@
 #define _PHYSICS_H
 
 #include "utils.h"
+#include "collisions.h"
 #include "player.h"
 #include "game.h"
 

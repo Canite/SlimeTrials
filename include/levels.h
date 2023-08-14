@@ -8,6 +8,8 @@
 #include "game.h"
 #include "../res/title_screen.h"
 #include "../res/level1.h"
+#include "../res/level2.h"
+#include "../res/level3.h"
 
 INCBIN_EXTERN(background_tiles)
 INCBIN_EXTERN(title)

@@ -113,6 +113,15 @@ void process_game_input()
         player.ySpd -= player.ySpd >> 1;
     }
 
+    if (INPUT_KEYPRESS(J_UP))
+    {
+        if (tile_botleft == 1 || tile_botright == 1 || tile_topleft == 1 || tile_topright == 1)
+        {
+            start_level(game.currentLevel + 1);
+            return;
+        }
+    }
+
     if (INPUT_KEY(J_UP))
     {
         if (player.hookState == HS_ATTACHED && player.hookLength > MIN_HOOK_LENGTH && (player.hookAngle > (255 - MAX_ADJUST_ANGLE) || player.hookAngle < MAX_ADJUST_ANGLE))

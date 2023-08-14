@@ -5,12 +5,12 @@ import os
 import json
 import argparse
 
+
 def main(args):
     tile_data = []
     map_width = 0
     map_height = 0
     spawn_data = {}
-    goal_data = {}
     output_filename = os.path.basename(args.output)
     with open(args.input, 'r') as json_file:
         j = json.load(json_file)
@@ -27,11 +27,9 @@ def main(args):
         map_width = layers[0]["width"]
         map_height = layers[0]["height"]
 
-        if (len(layers) > 2):
+        if (len(layers) > 1):
             if (layers[1]["name"] == "spawn"):
                 spawn_data = layers[1]
-            if (layers[2]["name"] == "goal"):
-                goal_data = layers[2]
 
     for i in range(len(tile_data)):
         if tile_data[i] > 0:
@@ -43,7 +41,7 @@ def main(args):
             out_c_file.write(f"const unsigned char {output_filename}_tiles[] = " + "\n" + "{" + "\n")
             tile_data_strs = ["    "]
             line_num = 0
-            for i,tile_idx in enumerate(tile_data):
+            for i, tile_idx in enumerate(tile_data):
                 tile_data_strs[line_num] += f"0x{tile_idx:02x},"
                 if (i != 0 and (i + 1) % 16 == 0 and i != len(tile_data) - 1):
                     tile_data_strs[line_num] += "\n"
@@ -63,18 +61,13 @@ def main(args):
             out_h_file.write(f"#define {output_filename}_tile_height  {map_height}\n")
 
             if (spawn_data):
-                spawn_x = spawn_data["objects"][0]["x"]
-                spawn_y = spawn_data["objects"][0]["y"]
+                spawn_x = spawn_data["objects"][0]["x"] + 16
+                spawn_y = spawn_data["objects"][0]["y"] + 16
                 out_h_file.write(f"#define {output_filename}_spawn_x  {spawn_x}\n")
                 out_h_file.write(f"#define {output_filename}_spawn_y  {spawn_y}\n")
-            if (goal_data):
-                goal_x = goal_data["objects"][0]["x"]
-                goal_y = goal_data["objects"][0]["y"]
-                out_h_file.write(f"#define {output_filename}_goal_x  {goal_x}\n")
-                out_h_file.write(f"#define {output_filename}_goal_y  {goal_y}\n")
 
             out_h_file.write(f"extern const unsigned char {output_filename}_tiles[];\n")
-            out_h_file.write(f"\n#endif\n")
+            out_h_file.write("\n#endif\n")
 
 
 if __name__ == "__main__":

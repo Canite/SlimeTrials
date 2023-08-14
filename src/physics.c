@@ -83,7 +83,7 @@ void apply_physics()
             uint8_t col_flags = check_tilemap_collision(player.x + xColOffset, player.y + yColOffset);
             player.colFlags = col_flags;
             // Check corners first
-            uint8_t cornerCollision = handle_collision_v_corners(yTmp, col_flags);
+            uint8_t cornerCollision = handle_collision_v_corners(yColOffset, col_flags);
             if (cornerCollision == 2)
             {
                 yTmp = 0;
@@ -278,14 +278,16 @@ void apply_physics()
 
     if (player.x != player.oldX || player.y != player.oldY)
     {
-        player.oldX = player.x;
-        player.oldY = player.y;
-
         uint16_t playerPixelX = (player.x >> 4);
         uint16_t playerPixelY = (player.y >> 4);
 
+        player.oldX = player.x;
+        player.oldY = player.y;
+
         if (playerPixelX > 76) camera.x = playerPixelX - 76;
         if (playerPixelY > 144) camera.y = playerPixelY - 144;
+        if (camera.x > (game.mapPixelW - 160)) camera.x = (game.mapPixelW - 160);
+        if (camera.y > (game.mapPixelH - 160)) camera.y = (game.mapPixelH - 160);
         camera.redraw = 1;
     }
 }
@@ -338,7 +340,7 @@ uint8_t handle_collision_v_corners(int16_t yTmp, uint8_t col_flags)
     uint16_t yOffset = (((player.y + yTmp) >> 7) << 7);
     if (col_flags == BOT_LEFT_COL || col_flags == BOT_RIGHT_COL)
     {
-        if (yTmp > 0 && player.y - yOffset <= 24)
+        if (yTmp > 0 || (player.y - yOffset) <= 8)
         {
             player.y = yOffset;
             yTmp = 0;
@@ -352,7 +354,7 @@ uint8_t handle_collision_v_corners(int16_t yTmp, uint8_t col_flags)
     if (col_flags == TOP_LEFT_COL || col_flags == TOP_RIGHT_COL)
     {
         yOffset += 128;
-        if (yTmp < 0 && yOffset - player.y <= 24)
+        if (yTmp < 0 || (yOffset - player.y) <= 8)
         {
             player.y = yOffset;
             yTmp = 0;

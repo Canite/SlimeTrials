@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: [-I/home/canight/gbdk/include, -I./include, -L/home/canight/gbdk/lib/, -D__TARGET_gb, -D__PORT_sm83, -D__banked, -D__naked]
+  Compiler: /home/canight/gbdk/bin/lcc
+

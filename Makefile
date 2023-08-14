@@ -9,10 +9,12 @@ ifdef OS
 	GBDK_HOME = "F:/gbdk/"
 	RGBDS_HOME = "F:/GBDev/rgbds-0.6.1-win64/"
 	EMULATOR = "F:/bgb/bgb.exe"
+	EMULATORFLAGS += ""
 else
 	GBDK_HOME = "/home/canight/gbdk/"
 	RGBDS_HOME = ""
-	EMULATOR = "sameboy"
+	EMULATOR = "java"
+	EMULATORFLAGS += -jar /home/canight/Downloads/emulicious/Emulicious.jar
 endif
 
 LCC = $(GBDK_HOME)bin/lcc
@@ -85,4 +87,4 @@ clean:
 	rm -f  $(RESDIR)/*.2bpp
 
 run:
-	$(EMULATOR) $(OBJDIR)/$(PROJECTNAME).gb
+	$(EMULATOR) $(EMULATORFLAGS) $(OBJDIR)/$(PROJECTNAME).gb
