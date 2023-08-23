@@ -9,7 +9,6 @@ ifdef OS
 	GBDK_HOME = "F:/gbdk/"
 	RGBDS_HOME = "F:/GBDev/rgbds-0.6.1-win64/"
 	EMULATOR = "F:/bgb/bgb.exe"
-	EMULATORFLAGS += ""
 else
 	GBDK_HOME = "/home/canight/gbdk/"
 	RGBDS_HOME = ""
@@ -18,13 +17,13 @@ else
 endif
 
 LCC = $(GBDK_HOME)bin/lcc
-RGBGFX = $(RGBDS_HOME)rgbgfx
+PNGCONVERTER = $(GBDK_HOME)bin/png2asset
+PNGCONVERTERFLAGS = -tiles_only -spr8x8# -keep_palette_order
 
 # You can set flags for LCC here
 # For example, you can uncomment the line below to turn on debug output
 LCCFLAGS += -debug # Uncomment to enable debug output
 # LCCFLAGS += -v     # Uncomment for lcc verbose output
-# RGBGFXFLAGS += -C
 
 
 # You can set the name of the .gb ROM file here
@@ -40,7 +39,7 @@ ASMSOURCES  = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.s)))
 IMAGEFILES  = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.png)))
 TILEDFILES  = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.tmj)))
 OBJS        = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.s=$(OBJDIR)/%.o)
-RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.2bpp $(TILEDFILES:%.tmj=$(RESDIR)/%))
+RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.c $(TILEDFILES:%.tmj=$(RESDIR)/%.c))
 
 all:	prepare $(BINS)
 
@@ -49,11 +48,13 @@ compile.bat: Makefile
 	@make -sn | sed y/\\//\\\\/ | sed s/mkdir\ -p\/mkdir\/ | grep -v make >> compile.bat
 
 # Compile .png files in "res/" to bin files
-$(RESDIR)/%.2bpp:  $(RESDIR)/%.png
-	$(RGBGFX) $(RGBGFXFLAGS) -o $@ $<
+$(RESDIR)/%.c:  $(RESDIR)/%.png
+	$(PNGCONVERTER) $< $(PNGCONVERTERFLAGS) -o $@
+	$(LCC) $(LCCFLAGS) -c -o $(OBJDIR)/$(*F).o $@
 
-$(RESDIR)/%: 	$(RESDIR)/%.tmj
+$(RESDIR)/%.c: 	$(RESDIR)/%.tmj
 	$(UTILDIR)/convert_tile_json.py -i $< -o $@
+	$(LCC) $(LCCFLAGS) -c -o $(OBJDIR)/$(*F).o $@
 
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
