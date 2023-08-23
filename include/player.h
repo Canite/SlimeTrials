@@ -5,9 +5,10 @@
 #include <gb/gb.h>
 #include <gbdk/platform.h>
 #include <gbdk/console.h>
-#include <gbdk/incbin.h>
 
 #include "utils.h"
+#include "../res/hook.h"
+#include "../res/slime.h"
 
 struct Player
 {
@@ -83,10 +84,10 @@ enum LookState
 #define HOOK_INDICATOR_SPRITE_TILE_INDEX 9
 
 extern struct Player player;
-INCBIN_EXTERN(slime)
-INCBIN_EXTERN(hook)
+//INCBIN_EXTERN(slime)
+//INCBIN_EXTERN(hook)
 
 void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY);
-void handle_input();
+void handle_input(void);
 
 #endif

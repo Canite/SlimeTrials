@@ -1,7 +1,7 @@
 #include "../include/player.h"
 
-INCBIN(slime, "res/slime.2bpp")
-INCBIN(hook, "res/hook.2bpp")
+//INCBIN(slime, "res/slime.2bpp")
+//INCBIN(hook, "res/hook.2bpp")
 
 struct Player player = {0};
 
@@ -9,8 +9,8 @@ void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY)
 {
     if (initSprites)
     {
-        set_sprite_data(0, 8, slime);
-        set_sprite_data(8, 2, hook);
+        set_sprite_data(0, slime_TILE_COUNT, slime_tiles);
+        set_sprite_data(8, hook_TILE_COUNT, hook_tiles);
 
         set_sprite_tile(0, GROUND_IDLE_ANIM_INDEX);
         //set_sprite_tile(1, player.animFrame + 1);
@@ -43,7 +43,7 @@ void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY)
     player.hookSegments = 0;
 }
 
-void handle_input()
+void handle_input(void)
 {
 
 }

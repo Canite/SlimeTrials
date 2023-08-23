@@ -21,12 +21,12 @@ struct Camera
 
 extern struct Camera camera;
 
-void init_camera();
-void update_camera();
-void clear_background();
-void update_game_sprites();
-void draw_hook();
-void hide_hook();
-void draw_hook_indicator();
+void init_camera(void);
+void update_camera(void);
+void clear_background(void);
+void update_game_sprites(void);
+void draw_hook(void);
+void hide_hook(void);
+void draw_hook_indicator(void);
 
 #endif

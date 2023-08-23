@@ -23,7 +23,7 @@
             7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
          "height":18,
          "id":1,
-         "name":"Tile Layer 1",
+         "name":"tiles",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,

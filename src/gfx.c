@@ -2,7 +2,7 @@
 
 struct Camera camera = {0};
 
-void init_camera()
+void init_camera(void)
 {
     camera.x = 0;
     camera.y = 0;
@@ -11,7 +11,7 @@ void init_camera()
     camera.redraw = 0;
 }
 
-void clear_background()
+void clear_background(void)
 {
     for (uint16_t i = 0; i < 20; i ++)
     {
@@ -22,7 +22,7 @@ void clear_background()
     }
 }
 
-void update_camera()
+void update_camera(void)
 {
     if (camera.redraw)
     {
@@ -36,11 +36,11 @@ void update_camera()
         {
             if (camera.y < camera.oldY)
             {
-                set_bkg_submap(game.mapX, game.mapY, MIN(21u, game.tileMapW-game.mapX), 1, game.tileMap, game.tileMapW);
+                set_bkg_submap(game.mapX, game.mapY, MIN(21u, game.level_data.tile_width-game.mapX), 1, game.level_data.tiles, game.level_data.tile_width);
             }
             else
             {
-                if ((game.tileMapH - 18u) > game.mapY) set_bkg_submap(game.mapX, game.mapY + 18u, MIN(21u, game.tileMapW-game.mapX), 1, game.tileMap, game.tileMapW);
+                if ((game.level_data.tile_height - 18u) > game.mapY) set_bkg_submap(game.mapX, game.mapY + 18u, MIN(21u, game.level_data.tile_width-game.mapX), 1, game.level_data.tiles, game.level_data.tile_width);
             }
             game.oldMapY = game.mapY; 
         }
@@ -51,11 +51,11 @@ void update_camera()
         {
             if (camera.x < camera.oldX)
             {
-                set_bkg_submap(game.mapX, game.mapY, 1, MIN(19u, game.tileMapH - game.mapY), game.tileMap, game.tileMapW);
+                set_bkg_submap(game.mapX, game.mapY, 1, MIN(19u, game.level_data.tile_height - game.mapY), game.level_data.tiles, game.level_data.tile_width);
             }
             else
             {
-                if ((game.tileMapW - 20u) > game.mapX) set_bkg_submap(game.mapX + 20u, game.mapY, 1, MIN(19u, game.tileMapH - game.mapY), game.tileMap, game.tileMapW);
+                if ((game.level_data.tile_width - 20u) > game.mapX) set_bkg_submap(game.mapX + 20u, game.mapY, 1, MIN(19u, game.level_data.tile_height - game.mapY), game.level_data.tiles, game.level_data.tile_width);
             }
             game.oldMapX = game.mapX;
         }
@@ -66,7 +66,7 @@ void update_camera()
     }
 }
 
-void update_game_sprites()
+void update_game_sprites(void)
 {
     // Player sprite start
     set_sprite_tile(0, player.animIndex + player.animFrame);
@@ -109,7 +109,7 @@ void update_game_sprites()
     // Player sprite end
 }
 
-void draw_hook()
+void draw_hook(void)
 {
     int8_t xOffset = (player.hookAngle) >> 2;
     int8_t yOffset = 8;
@@ -287,7 +287,7 @@ void draw_hook_sprite()
 }
 */
 
-void hide_hook()
+void hide_hook(void)
 {
     for (uint8_t i = 0; i < player.hookSegments; i++)
     {
@@ -297,7 +297,7 @@ void hide_hook()
     player.hookSegments = 0;
 }
 
-void draw_hook_indicator()
+void draw_hook_indicator(void)
 {
     if ((game.gameFrame & 31u) == 31u)
     {
@@ -324,7 +324,7 @@ void draw_hook_indicator()
         {
             xTmp += xCheck;
             yTmp += yCheck;
-            col_flags = check_tilemap_collision(player.x + xTmp, player.y + yTmp);
+            col_flags = check_collision(player.x + xTmp, player.y + yTmp);
         }
 
         if ((abs16(xTmp) + abs16(yTmp)) >= maxDist || (abs16(xTmp) + abs16(yTmp)) <= MIN_HOOK_DISTANCE)

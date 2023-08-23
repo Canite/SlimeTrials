@@ -3,7 +3,7 @@
 uint8_t joy = 0;
 uint8_t old_joy = 0;
 
-void process_title_input()
+void process_title_input(void)
 {
     if (INPUT_KEYPRESS(J_START))
     {
@@ -12,8 +12,24 @@ void process_title_input()
     }
 }
 
-void process_game_input()
+void process_game_input(void)
 {
+    // DEBUG
+    // level change
+    if (INPUT_KEY(J_SELECT))
+    {
+        if (INPUT_KEYPRESS(J_LEFT))
+        {
+            start_level(game.currentLevel - 1);
+            return;
+        }
+        else if (INPUT_KEYPRESS(J_RIGHT))
+        {
+            start_level(game.currentLevel + 1);
+            return;
+        }
+    }
+
     if (INPUT_KEYPRESS(J_START))
     {
         game.gameState = GS_PAUSE;
@@ -203,20 +219,20 @@ void process_game_input()
         if (player.hookState != HS_ATTACHED)
         {
             int16_t xCheck = PIXELS_TO_SUBPIXELS(4);
-            int16_t yCheck = PIXELS_TO_SUBPIXELS(-4);
+            int16_t yCheck = -PIXELS_TO_SUBPIXELS(4);
             uint16_t maxDist = MAX_HOOK_DISTANCE;
             player.hookAngle = ANGLE_315DEG;
 
             if (player.lookState == LS_UP)
             {
                 xCheck = 0;
-                yCheck = PIXELS_TO_SUBPIXELS(-8);
+                yCheck = -PIXELS_TO_SUBPIXELS(8);
                 maxDist = MAX_STRAIGHT_HOOK_DISTANCE;
                 player.hookAngle = ANGLE_0DEG;
             }
             else if (player.facing)
             {
-                xCheck = PIXELS_TO_SUBPIXELS(-4);
+                xCheck = -PIXELS_TO_SUBPIXELS(4);
                 player.hookAngle = ANGLE_45DEG;
             }
 
@@ -227,7 +243,7 @@ void process_game_input()
             {
                 xTmp += xCheck;
                 yTmp += yCheck;
-                col_flags = check_tilemap_collision(player.x + xTmp, player.y + yTmp);
+                col_flags = check_collision(player.x + xTmp, player.y + yTmp);
             }
 
             if ((abs16(xTmp) + abs16(yTmp)) >= maxDist || (abs16(xTmp) + abs16(yTmp)) <= MIN_HOOK_DISTANCE)
@@ -279,7 +295,7 @@ void process_game_input()
     }
 }
 
-void process_pause_input()
+void process_pause_input(void)
 {
     if (INPUT_KEYPRESS(J_START))
     {

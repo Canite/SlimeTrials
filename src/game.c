@@ -2,14 +2,15 @@
 
 struct Game game = {0};
 
-void init_game()
+void init_game(void)
 {
     game.gameState = GS_TITLE_LOAD;
     game.gameFrame = 0;
     game.currentLevel = 0;
-    game.tileMap = 0;
-    game.tileMapW = 0;
-    game.tileMapH = 0;
+    game.level_data.tiles = 0;
+    game.level_data.collisions = 0;
+    game.level_data.tile_width = 0;
+    game.level_data.tile_height = 0;
     game.mapPixelW = 0;
     game.mapPixelH = 0;
     game.mapX = 0;
@@ -18,7 +19,7 @@ void init_game()
     game.oldMapY = 255;
 }
 
-void game_loop()
+void game_loop(void)
 {
     // Loop forever
     while(TRUE)
@@ -53,7 +54,7 @@ void game_loop()
         game.gameFrame += 1;
 
         // Done processing, yield CPU and wait for start of next frame
-        wait_vbl_done();
+        vsync();
 
         // update camera after vblank
         update_camera();

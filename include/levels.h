@@ -5,16 +5,20 @@
 #include <gb/gb.h>
 #include <gbdk/incbin.h>
 
+#include "structs.h"
 #include "game.h"
+#include "../res/caverns.h"
+#include "../res/title.h"
 #include "../res/title_screen.h"
 #include "../res/level1.h"
 #include "../res/level2.h"
 #include "../res/level3.h"
 
-INCBIN_EXTERN(background_tiles)
-INCBIN_EXTERN(title)
+#define NUM_LEVELS 3
 
-void init_title();
+extern const level_t levels[];
+
+void init_title(void);
 void init_level(uint8_t level);
 
 #endif

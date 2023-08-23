@@ -37,7 +37,7 @@ uint16_t isqrt(uint16_t x) NONBANKED
     return y;
 }
 
-void apply_physics()
+void apply_physics(void)
 {
     if (player.fallDelay)
     {
@@ -80,20 +80,20 @@ void apply_physics()
             if (xTmp < 0) xColOffset = MIN(-16, xTmp);
             if (xTmp > 0) xColOffset = MAX(16, xTmp);
 
-            uint8_t col_flags = check_tilemap_collision(player.x + xColOffset, player.y + yColOffset);
+            uint8_t col_flags = check_collision(player.x + xColOffset, player.y + yColOffset);
             player.colFlags = col_flags;
             // Check corners first
             uint8_t cornerCollision = handle_collision_v_corners(yColOffset, col_flags);
             if (cornerCollision == 2)
             {
                 yTmp = 0;
-                col_flags = check_tilemap_collision(player.x + xColOffset, player.y);
+                col_flags = check_collision(player.x + xColOffset, player.y);
                 if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
             }
             else if (cornerCollision == 1)
             {
                 if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
-                col_flags = check_tilemap_collision(player.x, player.y + yColOffset);
+                col_flags = check_collision(player.x, player.y + yColOffset);
                 if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
             }
             else
@@ -101,13 +101,13 @@ void apply_physics()
                 if ((col_flags == (BOT_LEFT_COL | TOP_LEFT_COL)) || (col_flags == (BOT_RIGHT_COL | TOP_RIGHT_COL)))
                 {
                     if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
-                    col_flags = check_tilemap_collision(player.x, player.y + yColOffset);
+                    col_flags = check_collision(player.x, player.y + yColOffset);
                     if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
                 }
                 else
                 {
                     if (handle_collision_v(yColOffset, col_flags)) yTmp = 0;
-                    col_flags = check_tilemap_collision(player.x + xColOffset, player.y);
+                    col_flags = check_collision(player.x + xColOffset, player.y);
                     if (handle_collision_h(xColOffset, col_flags)) xTmp = 0;
                 }
             }
@@ -206,7 +206,7 @@ void apply_physics()
         int16_t yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
         player.x = player.hookX + xOffset;
         player.y = player.hookY + yOffset;
-        uint8_t col_flags = check_tilemap_collision(player.x, player.y);
+        uint8_t col_flags = check_collision(player.x, player.y);
         uint8_t nAttempts = 12;
         int8_t tmpAngle = 0;
         int8_t angularVelSign = sign(player.angularVel);
@@ -234,7 +234,7 @@ void apply_physics()
                 yOffset = (player.hookLength * COS(player.hookAngle + tmpAngle)) >> 3;
                 player.x = player.hookX + xOffset;
                 player.y = player.hookY + yOffset;
-                col_flags = check_tilemap_collision(player.x, player.y);
+                col_flags = check_collision(player.x, player.y);
                 nAttempts -= 1;
                 // If we're adjusting hook length, check both directions for a valid path
                 if (col_flags && (nAttempts & 1u) && player.oldHookLength != player.hookLength)
@@ -278,6 +278,16 @@ void apply_physics()
 
     if (player.x != player.oldX || player.y != player.oldY)
     {
+        // Update collision flags
+        update_tilemap_collision(player.x, player.y);
+        check_collision(player.x, player.y);
+
+        if (collision_botleft == COL_DEATH || collision_topleft == COL_DEATH ||
+            collision_botright == COL_DEATH || collision_topright == COL_DEATH)
+        {
+            start_level(game.currentLevel);
+        }
+
         uint16_t playerPixelX = (player.x >> 4);
         uint16_t playerPixelY = (player.y >> 4);
 
@@ -290,79 +300,4 @@ void apply_physics()
         if (camera.y > (game.mapPixelH - 160)) camera.y = (game.mapPixelH - 160);
         camera.redraw = 1;
     }
-}
-
-uint8_t handle_collision_h(int16_t xTmp, uint8_t col_flags)
-{
-    if (xTmp < 0 && (col_flags & (BOT_LEFT_COL | TOP_LEFT_COL)))
-    {
-        player.x = (((player.x + xTmp) >> 7) << 7) + 128;
-        xTmp = 0;
-        player.xSpd = 0;
-        return 1;
-    }
-
-    if (xTmp > 0 && (col_flags & (BOT_RIGHT_COL | TOP_RIGHT_COL)))
-    {
-        player.x = (((player.x + xTmp) >> 7) << 7);
-        xTmp = 0;
-        player.xSpd = 0;
-        return 1;
-    }
-
-    return 0;
-}
-
-uint8_t handle_collision_v(int16_t yTmp, uint8_t col_flags)
-{
-    if (yTmp > 0 && (col_flags & (BOT_LEFT_COL | BOT_RIGHT_COL)))
-    {
-        player.y = (((player.y + yTmp) >> 7) << 7);
-        yTmp = 0;
-        player.ySpd = 0;
-        player.grounded = 1;
-        return 1;
-    }
-
-    if (yTmp < 0 && (col_flags & (TOP_LEFT_COL | TOP_RIGHT_COL)))
-    {
-        player.y = (((player.y + yTmp) >> 7) << 7) + 128;
-        yTmp = 0;
-        player.ySpd = 0;
-        return 1;
-    }
-
-    return 0;
-}
-
-uint8_t handle_collision_v_corners(int16_t yTmp, uint8_t col_flags)
-{
-    uint16_t yOffset = (((player.y + yTmp) >> 7) << 7);
-    if (col_flags == BOT_LEFT_COL || col_flags == BOT_RIGHT_COL)
-    {
-        if (yTmp > 0 || (player.y - yOffset) <= 8)
-        {
-            player.y = yOffset;
-            yTmp = 0;
-            player.ySpd = 0;
-            player.grounded = 1;
-            return 2;
-        }
-        return 1;
-    }
-
-    if (col_flags == TOP_LEFT_COL || col_flags == TOP_RIGHT_COL)
-    {
-        yOffset += 128;
-        if (yTmp < 0 || (yOffset - player.y) <= 8)
-        {
-            player.y = yOffset;
-            yTmp = 0;
-            player.ySpd = 0;
-            return 2;
-        }
-        return 1;
-    }
-
-    return 0;
 }

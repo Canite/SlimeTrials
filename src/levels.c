@@ -1,51 +1,46 @@
 #include "../include/levels.h"
 
-INCBIN(background_tiles, "res/background_tiles.2bpp")
-INCBIN(title, "res/title.2bpp")
+const level_t levels[] = {
+    {
+        .tiles = level1_tiles,
+        .collisions = level1_collisions,
+        .tile_width = level1_tile_width,
+        .tile_height = level1_tile_height,
+        .spawn_x = level1_spawn_x,
+        .spawn_y = level1_spawn_y,
+    },
+    {
+        .tiles = level2_tiles,
+        .collisions = level2_collisions,
+        .tile_width = level2_tile_width,
+        .tile_height = level2_tile_height,
+        .spawn_x = level2_spawn_x,
+        .spawn_y = level2_spawn_y,
+    },
+    {
+        .tiles = level3_tiles,
+        .collisions = level3_collisions,
+        .tile_width = level3_tile_width,
+        .tile_height = level3_tile_height,
+        .spawn_x = level3_spawn_x,
+        .spawn_y = level3_spawn_y,
+    },
+};
 
-void init_title()
+void init_title(void)
 {
-    set_bkg_data(0, 12, title);
+    set_bkg_data(0, title_TILE_COUNT, title_tiles);
     set_bkg_submap(0, 0, 20, 18, title_screen_tiles, title_screen_tile_width);
 }
 
 void init_level(uint8_t level)
 {
     uint8_t initPlayerSprites = (game.currentLevel == 0);
-    if (level == 1)
+    if (level > 0 && level <= NUM_LEVELS)
     {
-        set_bkg_data(0, 5, background_tiles);
-        set_bkg_submap(0, 0, 20, 18, level1_tiles, level1_tile_width);
-        game.tileMap = level1_tiles;
-        game.tileMapW = level1_tile_width;
-        game.tileMapH = level1_tile_height;
-        game.mapPixelW = game.tileMapW << 3;
-        game.mapPixelH = game.tileMapH << 3;
-
-        init_player(initPlayerSprites, level1_spawn_x, level1_spawn_y);
-    }
-    else if (level == 2)
-    {
-        set_bkg_data(0, 5, background_tiles);
-        set_bkg_submap(0, 0, 20, 18, level2_tiles, level2_tile_width);
-        game.tileMap = level2_tiles;
-        game.tileMapW = level2_tile_width;
-        game.tileMapH = level2_tile_height;
-        game.mapPixelW = game.tileMapW << 3;
-        game.mapPixelH = game.tileMapH << 3;
-
-        init_player(initPlayerSprites, level2_spawn_x, level2_spawn_y);
-    }
-    else if (level == 3)
-    {
-        set_bkg_data(0, 5, background_tiles);
-        set_bkg_submap(0, 0, 20, 18, level3_tiles, level3_tile_width);
-        game.tileMap = level3_tiles;
-        game.tileMapW = level3_tile_width;
-        game.tileMapH = level3_tile_height;
-        game.mapPixelW = game.tileMapW << 3;
-        game.mapPixelH = game.tileMapH << 3;
-
-        init_player(initPlayerSprites, level3_spawn_x, level3_spawn_y);
+        game.level_data = levels[level - 1];
+        set_bkg_data(0, caverns_TILE_COUNT, caverns_tiles);
+        set_bkg_submap(0, 0, 20, 18, game.level_data.tiles, game.level_data.tile_width);
+        init_player(initPlayerSprites, game.level_data.spawn_x, game.level_data.spawn_y);
     }
 }

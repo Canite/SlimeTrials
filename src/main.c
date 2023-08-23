@@ -8,7 +8,7 @@
 #include "../include/game.h"
 #include "../include/gfx.h"
 
-void main(void)
+int main(void)
 {
     DISPLAY_OFF;
     //BGP_REG = DMG_PALETTE(DMG_WHITE, DMG_BLACK, DMG_DARK_GRAY, DMG_LITE_GRAY);
@@ -25,4 +25,6 @@ void main(void)
     DISPLAY_ON;
 
     game_loop();
+
+    return 1;
 }

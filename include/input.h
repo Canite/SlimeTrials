@@ -20,8 +20,8 @@ extern uint8_t old_joy;
 // check button release
 #define INPUT_KEYRELEASE(key) ((~joy & old_joy) & (key))
 
-void process_title_input();
-void process_game_input();
-void process_pause_input();
+void process_title_input(void);
+void process_game_input(void);
+void process_pause_input(void);
 
 #endif

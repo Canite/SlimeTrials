@@ -4,6 +4,7 @@
 #include <gb/gb.h>
 #include <stdio.h>
 
+#include "structs.h"
 #include "input.h"
 #include "physics.h"
 #include "player.h"
@@ -25,9 +26,7 @@ struct Game
     uint16_t gameState;
     uint16_t gameFrame;
     uint8_t currentLevel;
-    char* tileMap;
-    uint8_t tileMapW;
-    uint8_t tileMapH;
+    level_t level_data;
     uint16_t mapPixelW;
     uint16_t mapPixelH;
     uint8_t mapX;
@@ -38,8 +37,8 @@ struct Game
 
 extern struct Game game;
 
-void init_game();
-void game_loop();
+void init_game(void);
+void game_loop(void);
 void start_level(uint8_t level);
 
 #endif
