@@ -296,8 +296,8 @@ void apply_physics(void)
 
         if (playerPixelX > 76) camera.x = playerPixelX - 76;
         if (playerPixelY > 144) camera.y = playerPixelY - 144;
-        if (camera.x > (game.mapPixelW - 160)) camera.x = (game.mapPixelW - 160);
-        if (camera.y > (game.mapPixelH - 160)) camera.y = (game.mapPixelH - 160);
+        if (camera.x > ((game.level_data.tile_width << 3) - 160)) camera.x = ((game.level_data.tile_width << 3) - 160);
+        if (camera.y > ((game.level_data.tile_height << 3) - 160)) camera.y = ((game.level_data.tile_height << 3) - 160);
         camera.redraw = 1;
     }
 }
