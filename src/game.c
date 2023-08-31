@@ -17,6 +17,7 @@ void init_game(void)
     game.mapY = 0;
     game.oldMapX = 255;
     game.oldMapY = 255;
+    game.flags = GF_NONE;
 }
 
 void game_loop(void)

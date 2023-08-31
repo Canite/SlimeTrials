@@ -20,6 +20,7 @@ struct Player
     uint8_t h;
     int16_t xSpd;
     int16_t ySpd;
+    uint8_t flags;
     uint8_t colFlags;
     int16_t angularAcc;
     int16_t angularVel;
@@ -38,6 +39,12 @@ struct Player
     uint8_t hookLength;
     uint8_t oldHookLength;
     uint8_t hookSegments;
+};
+
+enum PlayerFlags
+{
+    PF_NONE = 0x00,
+    PF_HASKEY = 0x01,
 };
 
 enum HookState

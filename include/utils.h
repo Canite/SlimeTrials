@@ -15,9 +15,9 @@
 #define BOT_RIGHT_COL 0x4
 #define BOT_LEFT_COL  0x8
 
-int16_t abs16(int16_t x);
-int8_t abs8(int8_t x);
-uint16_t abs_sub(uint16_t x, uint16_t y);
-int16_t sign(int16_t x);
+inline int16_t abs16(int16_t x);
+inline int8_t abs8(int8_t x);
+inline uint16_t abs_sub(uint16_t x, uint16_t y);
+inline int16_t sign(int16_t x);
 
 #endif

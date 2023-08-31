@@ -7,14 +7,16 @@
 
 #include "structs.h"
 #include "game.h"
+#include "key_obj.h"
 #include "../res/caverns.h"
 #include "../res/title.h"
 #include "../res/title_screen.h"
 #include "../res/level1.h"
 #include "../res/level2.h"
 #include "../res/level3.h"
+#include "../res/level4.h"
 
-#define NUM_LEVELS 3
+#define NUM_LEVELS 4
 
 extern const level_t levels[];
 

@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "gfx.h"
 #include "levels.h"
+#include "key_obj.h"
 
 // Game state
 enum GameState
@@ -19,6 +20,12 @@ enum GameState
     GS_TITLE,
     GS_INGAME,
     GS_PAUSE
+};
+
+enum GameFlags
+{
+    GF_NONE = 0x00,
+    GF_DOOR_OPEN = 0x01,
 };
 
 struct Game
@@ -33,6 +40,7 @@ struct Game
     uint8_t mapY;
     uint8_t oldMapX;
     uint8_t oldMapY;
+    uint8_t flags;
 };
 
 extern struct Game game;

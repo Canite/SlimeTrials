@@ -131,10 +131,18 @@ void process_game_input(void)
 
     if (INPUT_KEYPRESS(J_UP))
     {
-        if (tile_botleft == 1 || tile_botright == 1 || tile_topleft == 1 || tile_topright == 1)
+        if (tile_botleft == OPEN_DOOR_TILE1_INDEX || tile_botright == OPEN_DOOR_TILE1_INDEX || tile_topleft == OPEN_DOOR_TILE1_INDEX || tile_topright == OPEN_DOOR_TILE1_INDEX)
         {
             start_level(game.currentLevel + 1);
             return;
+        }
+        else if (tile_botleft == CLOSED_DOOR_TILE1_INDEX || tile_botright == CLOSED_DOOR_TILE1_INDEX || tile_topleft == CLOSED_DOOR_TILE1_INDEX || tile_topright == CLOSED_DOOR_TILE1_INDEX)
+        {
+            if ((game.flags & GF_DOOR_OPEN) != 0)
+            {
+                start_level(game.currentLevel + 1);
+                return;
+            }
         }
     }
 

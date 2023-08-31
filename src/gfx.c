@@ -69,7 +69,7 @@ void update_camera(void)
 void update_game_sprites(void)
 {
     // Player sprite start
-    set_sprite_tile(0, player.animIndex + player.animFrame);
+    set_sprite_tile(PLAYER_SPRITE_INDEX, player.animIndex + player.animFrame);
     if ((game.gameFrame & player.animSpeed) == player.animSpeed)
     {
         if (player.animFrame < player.numAnimFrames - 1)
@@ -87,13 +87,13 @@ void update_game_sprites(void)
 
     if (player.facing)
     {
-        set_sprite_prop(0, 1 << 5);
-        move_sprite(0, playerPixelX, playerPixelY);
+        set_sprite_prop(PLAYER_SPRITE_INDEX, S_FLIPX);
+        move_sprite(PLAYER_SPRITE_INDEX, playerPixelX, playerPixelY);
     }
     else
     {
-        set_sprite_prop(0, 0);
-        move_sprite(0, playerPixelX, playerPixelY);
+        set_sprite_prop(PLAYER_SPRITE_INDEX, 0);
+        move_sprite(PLAYER_SPRITE_INDEX, playerPixelX, playerPixelY);
     }
 
     if (player.hookState == HS_ATTACHED)
@@ -103,10 +103,19 @@ void update_game_sprites(void)
     else
     {
         hide_hook();
-        draw_hook_indicator();
+        //draw_hook_indicator();
     }
 
     // Player sprite end
+
+    if ((player.flags & PF_HASKEY) != 0)
+    {
+        int16_t keyPixelX = SUBPIXELS_TO_PIXELS(key.x) - camera.x;
+        int16_t keyPixelY = SUBPIXELS_TO_PIXELS(key.y) - camera.y;
+
+        move_sprite(KEY_SPRITE_INDEX, keyPixelX, keyPixelY);
+    }
+
 }
 
 void draw_hook(void)
@@ -287,7 +296,12 @@ void draw_hook_sprite()
 }
 */
 
-void hide_hook(void)
+inline void hide_key(void)
+{
+    hide_sprite(KEY_SPRITE_INDEX);
+}
+
+inline void hide_hook(void)
 {
     for (uint8_t i = 0; i < player.hookSegments; i++)
     {
@@ -302,18 +316,18 @@ void draw_hook_indicator(void)
     if ((game.gameFrame & 31u) == 31u)
     {
         int16_t xCheck = PIXELS_TO_SUBPIXELS(4);
-        int16_t yCheck = PIXELS_TO_SUBPIXELS(-4);
+        int16_t yCheck = -PIXELS_TO_SUBPIXELS(4);
         uint16_t maxDist = MAX_HOOK_DISTANCE;
 
         if (player.lookState == LS_UP)
         {
             xCheck = 0;
-            yCheck = PIXELS_TO_SUBPIXELS(-8);
+            yCheck = -PIXELS_TO_SUBPIXELS(8);
             maxDist = MAX_STRAIGHT_HOOK_DISTANCE;
         }
         else if (player.facing)
         {
-            xCheck = PIXELS_TO_SUBPIXELS(-4);
+            xCheck = -PIXELS_TO_SUBPIXELS(4);
         }
 
         uint8_t col_flags = 0;
@@ -333,8 +347,8 @@ void draw_hook_indicator(void)
         }
         else
         {
-            uint16_t indicatorX = SUBPIXELS_TO_PIXELS(player.x + xTmp) - camera.x;
-            uint16_t indicatorY = SUBPIXELS_TO_PIXELS(player.y + yTmp) - camera.y;
+            uint16_t indicatorX = SUBPIXELS_TO_PIXELS((player.x + xTmp)) - camera.x;
+            uint16_t indicatorY = SUBPIXELS_TO_PIXELS((player.y + yTmp)) - camera.y;
 
             set_sprite_tile(HOOK_INDICATOR_SPRITE_INDEX, HOOK_INDICATOR_SPRITE_TILE_INDEX);
             move_sprite(HOOK_INDICATOR_SPRITE_INDEX, indicatorX, indicatorY);

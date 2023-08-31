@@ -9,20 +9,19 @@ void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY)
 {
     if (initSprites)
     {
-        set_sprite_data(0, slime_TILE_COUNT, slime_tiles);
-        set_sprite_data(8, hook_TILE_COUNT, hook_tiles);
-
-        set_sprite_tile(0, GROUND_IDLE_ANIM_INDEX);
-        //set_sprite_tile(1, player.animFrame + 1);
-        //set_sprite_tile(2, player.animFrame + 2);
-        //set_sprite_tile(3, player.animFrame + 3);
+        set_sprite_data(PLAYER_SPRITE_TILE_INDEX, slime_TILE_COUNT, slime_tiles);
+        set_sprite_data(HOOK_SPRITE_TILE_INDEX, hook_TILE_COUNT, hook_tiles);
+        set_sprite_tile(PLAYER_SPRITE_INDEX, GROUND_IDLE_ANIM_INDEX);
     }
+
+    hide_hook();
 
     player.x = player.oldX = PIXELS_TO_SUBPIXELS(startX);
     player.y = player.oldY = PIXELS_TO_SUBPIXELS(startY);
     player.xSpd = player.ySpd = 0;
     player.w = 8;
     player.h = 8;
+    player.flags = 0;
     player.colFlags = 0;
     player.angularAcc = 0;
     player.angularVel = 0;

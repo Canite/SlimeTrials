@@ -282,14 +282,37 @@ void apply_physics(void)
         update_tilemap_collision(player.x, player.y);
         check_collision(player.x, player.y);
 
+        // Check special collision cases
         if (collision_botleft == COL_DEATH || collision_topleft == COL_DEATH ||
             collision_botright == COL_DEATH || collision_topright == COL_DEATH)
         {
             start_level(game.currentLevel);
+            return;
         }
 
-        uint16_t playerPixelX = (player.x >> 4);
-        uint16_t playerPixelY = (player.y >> 4);
+        if (tile_botleft == KEY_BACKGROUND_TILE_INDEX || tile_topleft == KEY_BACKGROUND_TILE_INDEX ||
+            tile_botright == KEY_BACKGROUND_TILE_INDEX || tile_topright == KEY_BACKGROUND_TILE_INDEX)
+        {
+            player.flags |= PF_HASKEY;
+            set_bkg_data(KEY_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
+            key.x = player.x;
+            key.y = player.y;
+        }
+        else if ((player.flags & PF_HASKEY) != 0)
+        {
+            if (tile_botleft == CLOSED_DOOR_TILE1_INDEX || tile_topleft == CLOSED_DOOR_TILE1_INDEX ||
+                tile_botright == CLOSED_DOOR_TILE1_INDEX || tile_topright == CLOSED_DOOR_TILE1_INDEX)
+            {
+                player.flags &= ~PF_HASKEY;
+                game.flags |= GF_DOOR_OPEN;
+                set_bkg_data(CLOSED_DOOR_TILE1_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE1_INDEX * 16]);
+                set_bkg_data(CLOSED_DOOR_TILE2_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE2_INDEX * 16]);
+                hide_key();
+            }
+        }
+
+        uint16_t playerPixelX = SUBPIXELS_TO_PIXELS(player.x);
+        uint16_t playerPixelY = SUBPIXELS_TO_PIXELS(player.y);
 
         player.oldX = player.x;
         player.oldY = player.y;
@@ -299,5 +322,45 @@ void apply_physics(void)
         if (camera.x > ((game.level_data.tile_width << 3) - 160)) camera.x = ((game.level_data.tile_width << 3) - 160);
         if (camera.y > ((game.level_data.tile_height << 3) - 160)) camera.y = ((game.level_data.tile_height << 3) - 160);
         camera.redraw = 1;
+    }
+
+    // Non player physics
+    if ((player.flags & PF_HASKEY) != 0)
+    {
+        uint16_t keyTargetX = player.x;
+        uint16_t keyTargetY = player.y - 16;
+
+        if (player.facing)
+        {
+            keyTargetX += 112;
+        }
+        else 
+        {
+            keyTargetX -= 112;
+        }
+
+        if (key.x != keyTargetX || key.y != keyTargetY)
+        {
+            if (key.x > keyTargetX)
+            {
+                key.xSpd = -((key.x - keyTargetX) >> 3);
+            }
+            else 
+            {
+                key.xSpd = (keyTargetX - key.x) >> 3;
+            }
+
+            if (key.y > keyTargetY)
+            {
+                key.ySpd = -((key.y - keyTargetY) >> 3);
+            }
+            else 
+            {
+                key.ySpd = (keyTargetY - key.y) >> 3;
+            }
+
+            key.x += key.xSpd;
+            key.y += key.ySpd;
+        }
     }
 }

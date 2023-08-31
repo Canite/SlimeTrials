@@ -14,6 +14,7 @@ def main(args):
     map_width = 0
     map_height = 0
     spawn_data = {}
+    door_open = 1
     output_filename = os.path.splitext(os.path.basename(args.output))[0]
     with open(args.input, 'r') as json_file:
         j = json.load(json_file)
@@ -51,6 +52,10 @@ def main(args):
     for i in range(len(col_data)):
         if col_data[i] > 0:
             col_data[i] -= col_tile_idx
+            # Doors
+            if (col_data[i] == 1):
+                if (tile_data[i] != 1 or tile_data[i] != 2):
+                    door_open = 0
 
     with open(args.output, "w+") as out_c_file:
         out_c_file.write(f"/*\n\n Auto-generated from Tiled {output_filename}\n\n*/\n\n")
@@ -102,6 +107,8 @@ def main(args):
             out_h_file.write(f"extern const unsigned char {output_filename}_tiles[];\n")
 
             if (col_data):
+                out_h_file.write(f"#define {output_filename}_door_open {door_open}\n")
+
                 out_h_file.write(f"extern const unsigned char {output_filename}_collisions[];\n")
 
             out_h_file.write("\n#endif\n")

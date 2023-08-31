@@ -8,7 +8,11 @@
 #include "player.h"
 #include "game.h"
 
-#define BLANK_TILE_INDEX 1
+#define BLANK_TILE_INDEX 0
+#define OPEN_DOOR_TILE1_INDEX 1
+#define OPEN_DOOR_TILE2_INDEX 2
+#define CLOSED_DOOR_TILE1_INDEX 28
+#define CLOSED_DOOR_TILE2_INDEX 29
 
 struct Camera
 {
@@ -26,7 +30,8 @@ void update_camera(void);
 void clear_background(void);
 void update_game_sprites(void);
 void draw_hook(void);
-void hide_hook(void);
+inline void hide_key(void);
+inline void hide_hook(void);
 void draw_hook_indicator(void);
 
 #endif

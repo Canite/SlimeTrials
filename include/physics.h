@@ -5,6 +5,7 @@
 #include "collisions.h"
 #include "player.h"
 #include "game.h"
+#include "key_obj.h"
 
 // physics constants
 #define MAX_X_SPEED_IN_SUBPIXELS 28
