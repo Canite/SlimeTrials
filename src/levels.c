@@ -37,6 +37,15 @@ const level_t levels[] = {
         .spawn_y = level4_spawn_y,
         .door_open = level4_door_open,
     },
+    {
+        .tiles = level5_tiles,
+        .collisions = level5_collisions,
+        .tile_width = level5_tile_width,
+        .tile_height = level5_tile_height,
+        .spawn_x = level5_spawn_x,
+        .spawn_y = level5_spawn_y,
+        .door_open = level5_door_open,
+    },
 };
 
 void init_title(void)

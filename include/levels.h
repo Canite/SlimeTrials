@@ -15,8 +15,9 @@
 #include "../res/level2.h"
 #include "../res/level3.h"
 #include "../res/level4.h"
+#include "../res/level5.h"
 
-#define NUM_LEVELS 4
+#define NUM_LEVELS 5
 
 extern const level_t levels[];
 
