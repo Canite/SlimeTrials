@@ -19,12 +19,12 @@
 #define GRAVITY_CONST 3
 #define JUMP_ACCELERATION_IN_SUBPIXELS 48
 #define INPUT_ANGULAR_ACC 5
-#define MAX_ANGULAR_VELOCITY 80 // for some reason positive is slower?
-#define MIN_ANGULAR_VELOCITY -60
+#define MAX_ANGULAR_VELOCITY 80
+#define MIN_ANGULAR_VELOCITY -80
 #define MIN_HOOK_DISTANCE 112 // 6 pixels
 #define MAX_HOOK_DISTANCE 1792 // 80 pixels
 #define MAX_STRAIGHT_HOOK_DISTANCE 1280 // 80 pixels
-#define MAX_HOOK_LENGTH 80 // 80 pixels
+#define MAX_HOOK_LENGTH 70 // 80 pixels
 #define MIN_HOOK_LENGTH 12 // 12 pixels
 #define MAX_ADJUST_ANGLE 24
 

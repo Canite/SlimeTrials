@@ -8,6 +8,7 @@
 #include "structs.h"
 #include "game.h"
 #include "key_obj.h"
+#include "gfx.h"
 #include "../res/caverns.h"
 #include "../res/title.h"
 #include "../res/title_screen.h"

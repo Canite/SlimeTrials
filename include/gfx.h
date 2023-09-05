@@ -2,11 +2,13 @@
 #define _GFX_H
 
 #include <gb/gb.h>
+#include <stdlib.h>
 #include <gbdk/platform.h>
 
 #include "utils.h"
 #include "player.h"
 #include "game.h"
+#include "../res/font_skinny.h"
 
 #define BLANK_TILE_INDEX 0
 #define OPEN_DOOR_TILE1_INDEX 1
@@ -26,6 +28,7 @@ struct Camera
 extern struct Camera camera;
 
 void init_camera(void);
+void update_window(void);
 void update_camera(void);
 void clear_background(void);
 void update_game_sprites(void);

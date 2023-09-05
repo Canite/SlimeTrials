@@ -2,6 +2,8 @@
 
 struct Camera camera = {0};
 
+uint8_t level_timer_tiles[] = {42, 42, 42, 42, 42};
+
 void init_camera(void)
 {
     camera.x = 0;
@@ -19,6 +21,29 @@ void clear_background(void)
         {
             set_tile_xy(i, j, BLANK_TILE_INDEX);
         }
+    }
+}
+
+void update_window(void)
+{
+    //uint16_t levelFrames = game.levelFrame;
+    uint16_t levelFrames = abs(player.angularVel);
+    //if ((levelFrames & 63u) == 63u)
+    {
+        level_timer_tiles[0] = 48;
+        level_timer_tiles[1] = 48;
+        level_timer_tiles[2] = 48;
+        level_timer_tiles[3] = 48;
+        level_timer_tiles[4] = 48;
+
+        char* level_timer_start = (char*)level_timer_tiles;
+        if (levelFrames < 10) level_timer_start += 4;
+        else if (levelFrames < 100) level_timer_start += 3;
+        else if (levelFrames < 1000) level_timer_start += 2;
+        else if (levelFrames < 10000) level_timer_start += 1;
+
+        //itoa(levelFrames, (char*)level_timer_start, 10);
+        set_win_based_tiles(15, 0, 5, 1, level_timer_tiles, (uint8_t)-6);
     }
 }
 

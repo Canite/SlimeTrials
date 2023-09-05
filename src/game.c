@@ -6,6 +6,7 @@ void init_game(void)
 {
     game.gameState = GS_TITLE_LOAD;
     game.gameFrame = 0;
+    game.levelFrame = 0;
     game.currentLevel = 0;
     game.level_data.tiles = 0;
     game.level_data.collisions = 0;
@@ -42,6 +43,8 @@ void game_loop(void)
                 process_game_input();
                 apply_physics();
                 update_game_sprites();
+                update_window();
+                game.levelFrame += 1;
 
                 break;
             case GS_PAUSE:

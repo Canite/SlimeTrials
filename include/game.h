@@ -32,6 +32,7 @@ struct Game
 {
     uint16_t gameState;
     uint16_t gameFrame;
+    uint16_t levelFrame;
     uint8_t currentLevel;
     level_t level_data;
     uint16_t mapPixelW;

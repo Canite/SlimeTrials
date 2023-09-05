@@ -162,22 +162,24 @@ void apply_physics(void)
     // Hook physics
     else
     {
+        uint8_t bPlayerInput = (player.flags & PF_HASINPUT) != 0;
         player.angularAcc = SIN(player.hookAngle);
-        // Division with negative numbers does not work properly in gbdk
-        // So, change to positive before division (algorithm needs -sin() anyways)
-        // Divide by the number of hook segements (the hookLength is too aggressive adjustment)
         if (player.angularAcc < 0)
         {
             player.angularAcc = -1 * player.angularAcc;
-            player.angularAcc /= (player.hookSegments + MAX(player.hookSegments >> 2, 1));
+            player.angularAcc = player.angularAcc >> (player.hookSegments >> 1);
         }
         else
         {
-            player.angularAcc /= (player.hookSegments + MAX(player.hookSegments >> 2, 1));
+            player.angularAcc = player.angularAcc >> (player.hookSegments >> 1);
             player.angularAcc = -1 * player.angularAcc;
         }
 
-        //if (sign(player.angularAcc) != sign(player.angularVel)) player.angularAcc += -(player.angularAcc >> 2);
+        if (bPlayerInput && sign(player.angularAcc) != sign(player.angularVel))
+        {
+            player.angularAcc = player.angularAcc >> 1;
+        }
+
         player.angularVel += player.angularAcc;
         player.angularVel = CLAMP(player.angularVel, MIN_ANGULAR_VELOCITY + (player.hookSegments << 1), MAX_ANGULAR_VELOCITY - (player.hookSegments << 1));
 
@@ -186,19 +188,31 @@ void apply_physics(void)
         // unless we are blocked by a wall, then we can't settle to 0
         int8_t angleSettleAlignment = 0;
         uint8_t oldAngle = player.hookAngle;
-        if (player.angularVel >> 4 == 0 && player.hookAngle > 0 && player.hookAngle <= 9)
+        if (player.angularVel > 0)
         {
-            player.hookAngle -= 1;
-            angleSettleAlignment = 1;
-        }
-        else if (player.angularVel >> 4 == 0  && player.hookAngle >= 246 /* && player.hookAngle <= 255 //always true */)
-        {
-            player.hookAngle += 1;
-            angleSettleAlignment = -1;
+            if (player.angularVel >> 4 == 0 && player.hookAngle > 0 && player.hookAngle <= 9)
+            {
+                player.hookAngle -= 1;
+                angleSettleAlignment = 1;
+                player.angularVel = 0;
+            }
+            else
+            {
+                player.hookAngle += (player.angularVel) >> 4;
+            }
         }
         else
         {
-            player.hookAngle += (player.angularVel) >> 4;
+            if ((-1 * player.angularVel) >> 4 == 0  && player.hookAngle >= 246 /* && player.hookAngle <= 255 //always true */)
+            {
+                player.hookAngle += 1;
+                angleSettleAlignment = -1;
+                player.angularVel = 0;
+            }
+            else
+            {
+                player.hookAngle -= (-1 * player.angularVel) >> 4;
+            }
         }
 
         // Hook length needs to be << 4 and sin(a) needs >> 7, so after mult it's >> 3
@@ -255,24 +269,30 @@ void apply_physics(void)
                 player.hookAngle = oldAngle;
                 xOffset = (player.hookLength * SIN(player.hookAngle)) >> 3;
                 yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
-                player.x = player.hookX + xOffset;
-                player.y = player.hookY + yOffset;
+                handle_collision_h(xOffset, col_flags);
+                check_collision(player.x, player.y + yOffset);
+                handle_collision_v(yOffset, col_flags);
+                //player.x = player.hookX + xOffset;
+                //player.y = player.hookY + yOffset;
             }
             else
             {
                 player.hookAngle = player.hookAngle + tmpAngle;
-                player.angularVel = -(player.angularVel >> 2);
+                player.angularVel = -(player.angularVel >> 3);
             }
         }
 
         // Decelerate, otherwise we'll swing back and forth forever
-        if (player.angularVel < 0)
+        if (!bPlayerInput)
         {
-            player.angularVel += 1;
-        }
-        else if (player.angularVel)
-        {
-            player.angularVel -= 1;
+            if (player.angularVel < 0)
+            {
+                player.angularVel += 1;
+            }
+            else if (player.angularVel)
+            {
+                player.angularVel -= 1;
+            }
         }
     }
 
@@ -290,8 +310,9 @@ void apply_physics(void)
             return;
         }
 
-        if (tile_botleft == KEY_BACKGROUND_TILE_INDEX || tile_topleft == KEY_BACKGROUND_TILE_INDEX ||
-            tile_botright == KEY_BACKGROUND_TILE_INDEX || tile_topright == KEY_BACKGROUND_TILE_INDEX)
+        if ((player.flags & PF_HASKEY) == 0 &&
+            (tile_botleft == KEY_BACKGROUND_TILE_INDEX || tile_topleft == KEY_BACKGROUND_TILE_INDEX ||
+            tile_botright == KEY_BACKGROUND_TILE_INDEX || tile_topright == KEY_BACKGROUND_TILE_INDEX))
         {
             player.flags |= PF_HASKEY;
             set_bkg_data(KEY_BACKGROUND_TILE_INDEX, 1, caverns_tiles);

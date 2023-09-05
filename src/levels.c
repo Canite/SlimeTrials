@@ -61,12 +61,14 @@ void init_level(uint8_t level)
     {
         game.level_data = levels[level - 1];
         game.flags = GF_NONE;
+        game.levelFrame = 0;
         if (game.level_data.door_open == 1)
         {
             game.flags |= GF_DOOR_OPEN;
         }
 
         set_bkg_data(0, caverns_TILE_COUNT, caverns_tiles);
+        set_win_data(caverns_TILE_COUNT, font_skinny_TILE_COUNT, font_skinny_tiles);
         set_bkg_submap(0, 0, 20, 18, game.level_data.tiles, game.level_data.tile_width);
         init_player(initSprites, game.level_data.spawn_x, game.level_data.spawn_y);
         init_key(initSprites);
