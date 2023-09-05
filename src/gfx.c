@@ -1,8 +1,11 @@
 #include "../include/gfx.h"
 
 struct Camera camera = {0};
+struct WindowData window = {0};
 
-uint8_t level_timer_tiles[] = {42, 42, 42, 42, 42};
+uint8_t level_timer_tiles[] = {42, 42, 53, 42, 42};
+uint8_t level_minutes = 0;
+uint8_t level_seconds = 0;
 
 void init_camera(void)
 {
@@ -11,6 +14,13 @@ void init_camera(void)
     camera.oldX = 0;
     camera.oldY = 0;
     camera.redraw = 0;
+}
+
+void init_window(void)
+{
+    window.timer_frames = 0;
+    window.timer_minutes = 0;
+    window.timer_seconds = 0;
 }
 
 void clear_background(void)
@@ -26,25 +36,50 @@ void clear_background(void)
 
 void update_window(void)
 {
-    //uint16_t levelFrames = game.levelFrame;
-    uint16_t levelFrames = abs(player.angularVel);
-    //if ((levelFrames & 63u) == 63u)
+    if (window.timer_frames == 0 || window.timer_frames >= 60)
     {
-        level_timer_tiles[0] = 48;
-        level_timer_tiles[1] = 48;
-        level_timer_tiles[2] = 48;
-        level_timer_tiles[3] = 48;
-        level_timer_tiles[4] = 48;
+        // time updated by 1 second, recalc and draw
+        if (window.timer_seconds < 59)
+        {
+            // start timer at 00:00
+            if (window.timer_frames != 0)
+            {
+                window.timer_seconds += 1;
+            }
+        }
+        else
+        {
+            window.timer_seconds = 0;
+            window.timer_minutes += 1;
+        }
 
-        char* level_timer_start = (char*)level_timer_tiles;
-        if (levelFrames < 10) level_timer_start += 4;
-        else if (levelFrames < 100) level_timer_start += 3;
-        else if (levelFrames < 1000) level_timer_start += 2;
-        else if (levelFrames < 10000) level_timer_start += 1;
+        // minutes
+        level_timer_tiles[0] = FONT_START_TILE_INDEX;
+        level_timer_tiles[1] = FONT_START_TILE_INDEX;
+        uint8_t tmp_minutes = window.timer_minutes;
+        while (tmp_minutes >= 10)
+        {
+            tmp_minutes -= 10;
+            level_timer_tiles[0] += 1;
+        }
+        level_timer_tiles[1] = FONT_START_TILE_INDEX + tmp_minutes;
 
-        //itoa(levelFrames, (char*)level_timer_start, 10);
-        set_win_based_tiles(15, 0, 5, 1, level_timer_tiles, (uint8_t)-6);
+        // seconds
+        level_timer_tiles[3] = FONT_START_TILE_INDEX;
+        level_timer_tiles[4] = FONT_START_TILE_INDEX;
+        uint8_t tmp_seconds = window.timer_seconds;
+        while (tmp_seconds >= 10)
+        {
+            tmp_seconds -= 10;
+            level_timer_tiles[3] += 1;
+        }
+        level_timer_tiles[4] = FONT_START_TILE_INDEX + tmp_seconds;
+
+        set_win_tiles(15, 0, 5, 1, level_timer_tiles);
+        window.timer_frames = 0;
     }
+
+    window.timer_frames += 1;
 }
 
 void update_camera(void)

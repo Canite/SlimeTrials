@@ -15,6 +15,7 @@
 #define OPEN_DOOR_TILE2_INDEX 2
 #define CLOSED_DOOR_TILE1_INDEX 28
 #define CLOSED_DOOR_TILE2_INDEX 29
+#define FONT_START_TILE_INDEX 42
 
 struct Camera
 {
@@ -25,9 +26,18 @@ struct Camera
     uint8_t redraw;
 };
 
+struct WindowData
+{
+    uint16_t timer_frames;
+    uint8_t timer_minutes;
+    uint8_t timer_seconds;
+};
+
 extern struct Camera camera;
+extern struct WindowData window;
 
 void init_camera(void);
+void init_window(void);
 void update_window(void);
 void update_camera(void);
 void clear_background(void);
