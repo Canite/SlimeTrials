@@ -27,7 +27,7 @@ LCCFLAGS += -debug # Uncomment to enable debug output
 
 
 # You can set the name of the .gb ROM file here
-PROJECTNAME    = Unknown
+PROJECTNAME    = SlimeTrials
 
 SRCDIR      = src
 OBJDIR      = obj
