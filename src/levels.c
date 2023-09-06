@@ -68,10 +68,11 @@ void init_level(uint8_t level)
         }
 
         set_bkg_data(0, caverns_TILE_COUNT, caverns_tiles);
-        set_win_data(caverns_TILE_COUNT, font_skinny_TILE_COUNT, font_skinny_tiles);
+        set_win_data(caverns_TILE_COUNT, font_bold_TILE_COUNT, font_bold_tiles);
         set_bkg_submap(0, 0, 20, 18, game.level_data.tiles, game.level_data.tile_width);
         init_player(initSprites, game.level_data.spawn_x, game.level_data.spawn_y);
         init_key(initSprites);
+        init_atl(initSprites);
         gfx.sprites_inited = 1;
     }
 }

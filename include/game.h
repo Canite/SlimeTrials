@@ -30,6 +30,7 @@ enum GameFlags
 {
     GF_NONE = 0x00,
     GF_DOOR_OPEN = 0x01,
+    GF_ITEM_PICKED = 0x02,
 };
 
 struct Game
@@ -39,6 +40,7 @@ struct Game
     uint16_t gameFrame;
     uint16_t levelFrame;
     uint8_t currentLevel;
+    uint8_t deaths;
     level_t level_data;
     uint16_t mapPixelW;
     uint16_t mapPixelH;

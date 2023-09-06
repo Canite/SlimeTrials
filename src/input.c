@@ -237,7 +237,7 @@ void process_game_input(void)
     }
 
 
-    if (INPUT_KEYPRESS(J_B) || (INPUT_KEYPRESS(J_A) && player.grounded == 0))
+    if (INPUT_KEYPRESS(J_B))
     {
         player.fallDelay = 0;
         if (player.hookState != HS_ATTACHED)
@@ -287,15 +287,29 @@ void process_game_input(void)
                 player.hookLength = isqrt(xSqr + ySqr);
                 player.oldHookLength = player.hookLength;
                 player.hookSegments = player.hookLength >> 3;
-                if (player.xSpd > 0)
+                int16_t xMomentum = 0;
+                int16_t yMomentum = 0;
+                if (player.xSpd >= 0)
                 {
-                    player.angularVel = (player.xSpd >> 2) + (player.ySpd >> 2);
+                    xMomentum = (player.xSpd >> 1);
                 }
                 else
                 {
-                    player.angularVel = (-1 * (player.xSpd) >> 2) + (-1 * (player.ySpd) >> 2);
+                    xMomentum = -1 * ((-1 * player.xSpd) >> 1);
                 }
+
+                if (player.ySpd >= 0)
+                {
+                    yMomentum = sign(xMomentum) * (player.ySpd >> 1);
+                }
+                else
+                {
+                    yMomentum = -sign(xMomentum) * ((-1 * player.ySpd) >> 1);
+                }
+
+                player.angularVel = xMomentum + yMomentum;
                 player.xSpd = 0;
+                player.ySpd = 0;
             }
 
             if (player.animIndex != AIR_IDLE_ANIM_INDEX)
@@ -309,7 +323,7 @@ void process_game_input(void)
             player.grounded = 0;
         }
     }
-    else if (INPUT_KEYRELEASE(J_B) || INPUT_KEYRELEASE(J_A))
+    else if (INPUT_KEYRELEASE(J_B))
     {
         if (player.hookState == HS_ATTACHED)
         {

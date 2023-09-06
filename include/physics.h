@@ -6,6 +6,7 @@
 #include "player.h"
 #include "game.h"
 #include "key_obj.h"
+#include "structs.h"
 
 // physics constants
 #define MAX_X_SPEED_IN_SUBPIXELS 28
@@ -48,6 +49,7 @@ extern const int8_t sine_wave[256];
 #define ANGLE_360DEG    255
 
 void apply_physics(void);
+void move_obj_to_player(basic_obj_t* obj);
 uint16_t isqrt(uint16_t x) NONBANKED;
 
 #endif

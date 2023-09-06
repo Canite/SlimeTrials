@@ -33,6 +33,7 @@ void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY)
     player.animSpeed = GROUND_IDLE_ANIM_SPEED;
     player.grounded = 0;
     player.fallDelay = 0;
+    player.iFrames = 0;
     player.hookState = HS_STOWED;
     player.hookX = 0;
     player.hookY = 0;

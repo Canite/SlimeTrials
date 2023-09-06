@@ -37,11 +37,54 @@ uint16_t isqrt(uint16_t x) NONBANKED
     return y;
 }
 
+void move_obj_to_player(basic_obj_t* obj)
+{
+    uint16_t objTargetX = player.x;
+    uint16_t objTargetY = player.y - 16;
+
+    if (player.facing)
+    {
+        objTargetX += 112;
+    }
+    else 
+    {
+        objTargetX -= 112;
+    }
+
+    if (obj->x != objTargetX || obj->y != objTargetY)
+    {
+        if (obj->x > objTargetX)
+        {
+            obj->xSpd = -((obj->x - objTargetX) >> 3);
+        }
+        else 
+        {
+            obj->xSpd = (objTargetX - obj->x) >> 3;
+        }
+
+        if (obj->y > objTargetY)
+        {
+            obj->ySpd = -((obj->y - objTargetY) >> 3);
+        }
+        else 
+        {
+            obj->ySpd = (objTargetY - obj->y) >> 3;
+        }
+
+        obj->x += obj->xSpd;
+        obj->y += obj->ySpd;
+    }
+}
+
 void apply_physics(void)
 {
     if (player.fallDelay)
     {
         player.fallDelay -= 1;
+    }
+    if (player.iFrames)
+    {
+        player.iFrames -= 1;
     }
 
     // Unhooked physics
@@ -188,31 +231,34 @@ void apply_physics(void)
         // unless we are blocked by a wall, then we can't settle to 0
         int8_t angleSettleAlignment = 0;
         uint8_t oldAngle = player.hookAngle;
-        if (player.angularVel > 0)
+        int8_t angleAdjust = 0;
+        if (player.angularVel >= 0)
         {
-            if (player.angularVel >> 4 == 0 && player.hookAngle > 0 && player.hookAngle <= 9)
-            {
-                player.hookAngle -= 1;
-                angleSettleAlignment = 1;
-                player.angularVel = 0;
-            }
-            else
-            {
-                player.hookAngle += (player.angularVel) >> 4;
-            }
+            angleAdjust = player.angularVel >> 4;
         }
         else
         {
-            if ((-1 * player.angularVel) >> 4 == 0  && player.hookAngle >= 246 /* && player.hookAngle <= 255 //always true */)
+            angleAdjust = -1 * ((-1 * player.angularVel) >> 4);
+        }
+
+        if (angleAdjust == 0)
+        {
+            if (player.hookAngle >= 246)
             {
                 player.hookAngle += 1;
                 angleSettleAlignment = -1;
                 player.angularVel = 0;
             }
-            else
+            else if (player.hookAngle > 0 && player.hookAngle <= 9)
             {
-                player.hookAngle -= (-1 * player.angularVel) >> 4;
+                player.hookAngle -= 1;
+                angleSettleAlignment = 1;
+                player.angularVel = 0;
             }
+        }
+        else
+        {
+            player.hookAngle += angleAdjust;
         }
 
         // Hook length needs to be << 4 and sin(a) needs >> 7, so after mult it's >> 3
@@ -306,18 +352,29 @@ void apply_physics(void)
         if (collision_botleft == COL_DEATH || collision_topleft == COL_DEATH ||
             collision_botright == COL_DEATH || collision_topright == COL_DEATH)
         {
-            game.gameState = GS_FADE_OUT;
-            game.nextState = GS_START_LEVEL;
-            gfx.fade_delay = 12;
-            gfx.fade_step_length = 2;
-            return;
+            if ((player.flags & PF_HASATL) != 0)
+            {
+                player.flags &= ~PF_HASATL;
+                player.iFrames = 180;
+                hide_atl();
+            }
+            else if (player.iFrames == 0)
+            {
+                game.gameState = GS_FADE_OUT;
+                game.nextState = GS_START_LEVEL;
+                game.deaths += 1;
+                gfx.fade_delay = 12;
+                gfx.fade_step_length = 2;
+                return;
+            }
         }
 
-        if ((player.flags & PF_HASKEY) == 0 &&
+        if (((game.flags & GF_ITEM_PICKED) == 0) && ((player.flags & PF_HASKEY) == 0) &&
             (tile_botleft == KEY_BACKGROUND_TILE_INDEX || tile_topleft == KEY_BACKGROUND_TILE_INDEX ||
             tile_botright == KEY_BACKGROUND_TILE_INDEX || tile_topright == KEY_BACKGROUND_TILE_INDEX))
         {
             player.flags |= PF_HASKEY;
+            game.flags |= GF_ITEM_PICKED;
             set_bkg_data(KEY_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
             key.x = player.x;
             key.y = player.y;
@@ -333,6 +390,17 @@ void apply_physics(void)
                 set_bkg_data(CLOSED_DOOR_TILE2_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE2_INDEX * 16]);
                 hide_key();
             }
+        }
+
+        if (((game.flags & GF_ITEM_PICKED) == 0) && ((player.flags & PF_HASATL) == 0) &&
+            (tile_botleft == ATL_BACKGROUND_TILE_INDEX || tile_topleft == ATL_BACKGROUND_TILE_INDEX ||
+            tile_botright == ATL_BACKGROUND_TILE_INDEX || tile_topright == ATL_BACKGROUND_TILE_INDEX))
+        {
+            player.flags |= PF_HASATL;
+            game.flags |= GF_ITEM_PICKED;
+            set_bkg_data(ATL_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
+            atl.x = player.x;
+            atl.y = player.y;
         }
 
         uint16_t playerPixelX = SUBPIXELS_TO_PIXELS(player.x);
@@ -351,40 +419,10 @@ void apply_physics(void)
     // Non player physics
     if ((player.flags & PF_HASKEY) != 0)
     {
-        uint16_t keyTargetX = player.x;
-        uint16_t keyTargetY = player.y - 16;
-
-        if (player.facing)
-        {
-            keyTargetX += 112;
-        }
-        else 
-        {
-            keyTargetX -= 112;
-        }
-
-        if (key.x != keyTargetX || key.y != keyTargetY)
-        {
-            if (key.x > keyTargetX)
-            {
-                key.xSpd = -((key.x - keyTargetX) >> 3);
-            }
-            else 
-            {
-                key.xSpd = (keyTargetX - key.x) >> 3;
-            }
-
-            if (key.y > keyTargetY)
-            {
-                key.ySpd = -((key.y - keyTargetY) >> 3);
-            }
-            else 
-            {
-                key.ySpd = (keyTargetY - key.y) >> 3;
-            }
-
-            key.x += key.xSpd;
-            key.y += key.ySpd;
-        }
+        move_obj_to_player((basic_obj_t*)&key);
+    }
+    if ((player.flags & PF_HASATL) != 0)
+    {
+        move_obj_to_player((basic_obj_t*)&atl);
     }
 }

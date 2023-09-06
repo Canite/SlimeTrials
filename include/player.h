@@ -32,6 +32,7 @@ struct Player
     uint8_t animSpeed;
     uint8_t grounded;
     uint8_t fallDelay;
+    uint8_t iFrames;
     uint8_t hookState;
     uint16_t hookX;
     uint16_t hookY;
@@ -46,6 +47,7 @@ enum PlayerFlags
     PF_NONE = 0x00,
     PF_HASKEY = 0x01,
     PF_HASINPUT = 0x02,
+    PF_HASATL = 0x04,
 };
 
 enum HookState

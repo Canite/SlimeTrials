@@ -8,7 +8,7 @@
 #include "utils.h"
 #include "player.h"
 #include "game.h"
-#include "../res/font_skinny.h"
+#include "../res/font_bold.h"
 
 #define BLANK_TILE_INDEX 0
 #define OPEN_DOOR_TILE1_INDEX 1
@@ -16,7 +16,9 @@
 #define CLOSED_DOOR_TILE1_INDEX 28
 #define CLOSED_DOOR_TILE2_INDEX 29
 #define FONT_START_TILE_INDEX 42
-#define FONT_COLON_TILE_INDEX 53
+#define FONT_COLON_TILE_INDEX 52
+#define FONT_CLOCK_TILE_INDEX 53
+#define FONT_SKULL_TILE_INDEX 54
 
 struct Camera
 {
@@ -32,7 +34,9 @@ struct WindowData
     uint16_t timer_frames;
     uint8_t timer_minutes;
     uint8_t timer_seconds;
-    uint8_t level_timer_tiles[5];
+    uint8_t drawn_deaths;
+    uint8_t level_timer_tiles[6];
+    uint8_t death_counter_tiles[3];
 };
 
 struct GraphicsInfo
@@ -58,6 +62,7 @@ void fade_out(void);
 void fade_in(void);
 void update_game_sprites(void);
 void draw_hook(void);
+inline void hide_atl(void);
 inline void hide_key(void);
 inline void hide_hook(void);
 void draw_hook_indicator(void);

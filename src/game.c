@@ -9,6 +9,7 @@ void init_game(void)
     game.gameFrame = 0;
     game.levelFrame = 0;
     game.currentLevel = 0;
+    game.deaths = 0;
     game.level_data.tiles = 0;
     game.level_data.collisions = 0;
     game.level_data.tile_width = 0;

@@ -29,11 +29,16 @@ void init_window(void)
     window.timer_frames = 0;
     window.timer_minutes = 0;
     window.timer_seconds = 0;
-    window.level_timer_tiles[0] = FONT_START_TILE_INDEX;
+    window.drawn_deaths = 255;
+    window.death_counter_tiles[0] = FONT_SKULL_TILE_INDEX;
+    window.death_counter_tiles[1] = FONT_START_TILE_INDEX;
+    window.death_counter_tiles[2] = FONT_START_TILE_INDEX;
+    window.level_timer_tiles[0] = FONT_CLOCK_TILE_INDEX;
     window.level_timer_tiles[1] = FONT_START_TILE_INDEX;
-    window.level_timer_tiles[2] = FONT_COLON_TILE_INDEX;
-    window.level_timer_tiles[3] = FONT_START_TILE_INDEX;
+    window.level_timer_tiles[2] = FONT_START_TILE_INDEX;
+    window.level_timer_tiles[3] = FONT_COLON_TILE_INDEX;
     window.level_timer_tiles[4] = FONT_START_TILE_INDEX;
+    window.level_timer_tiles[5] = FONT_START_TILE_INDEX;
 
 }
 
@@ -163,32 +168,49 @@ void update_window(void)
         }
 
         // minutes
-        window.level_timer_tiles[0] = FONT_START_TILE_INDEX;
         window.level_timer_tiles[1] = FONT_START_TILE_INDEX;
+        window.level_timer_tiles[2] = FONT_START_TILE_INDEX;
         uint8_t tmp_minutes = window.timer_minutes;
         while (tmp_minutes >= 10)
         {
             tmp_minutes -= 10;
             window.level_timer_tiles[0] += 1;
         }
-        window.level_timer_tiles[1] = FONT_START_TILE_INDEX + tmp_minutes;
+        window.level_timer_tiles[2] = FONT_START_TILE_INDEX + tmp_minutes;
 
         // seconds
-        window.level_timer_tiles[3] = FONT_START_TILE_INDEX;
         window.level_timer_tiles[4] = FONT_START_TILE_INDEX;
+        window.level_timer_tiles[5] = FONT_START_TILE_INDEX;
         uint8_t tmp_seconds = window.timer_seconds;
         while (tmp_seconds >= 10)
         {
             tmp_seconds -= 10;
-            window.level_timer_tiles[3] += 1;
+            window.level_timer_tiles[4] += 1;
         }
-        window.level_timer_tiles[4] = FONT_START_TILE_INDEX + tmp_seconds;
+        window.level_timer_tiles[5] = FONT_START_TILE_INDEX + tmp_seconds;
 
-        set_win_tiles(15, 0, 5, 1, window.level_timer_tiles);
+        set_win_tiles(14, 0, 6, 1, window.level_timer_tiles);
         window.timer_frames = 0;
     }
 
     window.timer_frames += 1;
+
+    // death counter
+    if (window.drawn_deaths != game.deaths || window.drawn_deaths == 255)
+    {
+        window.drawn_deaths = game.deaths;
+
+        window.death_counter_tiles[1] = FONT_START_TILE_INDEX;
+        window.death_counter_tiles[2] = FONT_START_TILE_INDEX;
+        uint8_t tmp_deaths = window.drawn_deaths;
+        while (tmp_deaths >= 10)
+        {
+            tmp_deaths -= 10;
+            window.death_counter_tiles[1] += 1;
+        }
+        window.death_counter_tiles[2] = FONT_START_TILE_INDEX + tmp_deaths;
+        set_win_tiles(0, 0, 3, 1, window.death_counter_tiles);
+    }
 }
 
 void update_camera(void)
@@ -254,15 +276,22 @@ void update_game_sprites(void)
     int16_t playerPixelX = SUBPIXELS_TO_PIXELS(player.x) - camera.x;
     int16_t playerPixelY = SUBPIXELS_TO_PIXELS(player.y) - camera.y;
 
-    if (player.facing)
+    if ((player.iFrames & 7u) == 7u)
     {
-        set_sprite_prop(PLAYER_SPRITE_INDEX, S_FLIPX);
-        move_sprite(PLAYER_SPRITE_INDEX, playerPixelX, playerPixelY);
+        hide_sprite(PLAYER_SPRITE_INDEX);
     }
     else
     {
-        set_sprite_prop(PLAYER_SPRITE_INDEX, 0);
-        move_sprite(PLAYER_SPRITE_INDEX, playerPixelX, playerPixelY);
+        if (player.facing)
+        {
+            set_sprite_prop(PLAYER_SPRITE_INDEX, S_FLIPX);
+            move_sprite(PLAYER_SPRITE_INDEX, playerPixelX, playerPixelY);
+        }
+        else
+        {
+            set_sprite_prop(PLAYER_SPRITE_INDEX, 0);
+            move_sprite(PLAYER_SPRITE_INDEX, playerPixelX, playerPixelY);
+        }
     }
 
     if (player.hookState == HS_ATTACHED)
@@ -277,6 +306,7 @@ void update_game_sprites(void)
 
     // Player sprite end
 
+    // TODO: eventually turn this into some list stored on the game struct
     if ((player.flags & PF_HASKEY) != 0)
     {
         int16_t keyPixelX = SUBPIXELS_TO_PIXELS(key.x) - camera.x;
@@ -285,55 +315,49 @@ void update_game_sprites(void)
         move_sprite(KEY_SPRITE_INDEX, keyPixelX, keyPixelY);
     }
 
+    if ((player.flags & PF_HASATL) != 0)
+    {
+        int16_t atlPixelX = SUBPIXELS_TO_PIXELS(atl.x) - camera.x;
+        int16_t atlPixelY = SUBPIXELS_TO_PIXELS(atl.y) - camera.y;
+
+        move_sprite(ATL_SPRITE_INDEX, atlPixelX, atlPixelY);
+    }
+
 }
 
 void draw_hook(void)
 {
     int8_t xOffset = (player.hookAngle) >> 2;
     int8_t yOffset = 8;
-    //uint8_t spriteProp = 0;
-    //uint8_t gfxHookIndex = xOffset;
     if (player.hookAngle > ANGLE_315DEG)
     {
         xOffset = (player.hookAngle - ANGLE_360DEG) >> 2;
         yOffset = 8;
-        //spriteProp = S_FLIPX;
-        //gfxHookIndex = (ANGLE_360DEG - player.hookAngle) >> 2;
     }
     else if (player.hookAngle > ANGLE_270DEG)
     {
         xOffset = -8;
         yOffset = (player.hookAngle - ANGLE_270DEG) >> 2;
-        //spriteProp = S_FLIPX;
-        //gfxHookIndex = (ANGLE_360DEG - player.hookAngle) >> 2;
     }
     else if (player.hookAngle > ANGLE_225DEG)
     {
         xOffset = -8;
         yOffset = (player.hookAngle - ANGLE_270DEG) >> 2;
-        //spriteProp = S_FLIPX | S_FLIPY;
-        //gfxHookIndex = (player.hookAngle - ANGLE_180DEG) >> 2;
     }
     else if (player.hookAngle > ANGLE_180DEG)
     {
         xOffset = (ANGLE_180DEG - player.hookAngle) >> 2;
         yOffset = -8;
-        //spriteProp = S_FLIPX | S_FLIPY;
-        //gfxHookIndex = (player.hookAngle - ANGLE_180DEG) >> 2;
     }
     else if (player.hookAngle > ANGLE_135DEG)
     {
         xOffset = (ANGLE_180DEG - player.hookAngle) >> 2;
         yOffset = -8;
-        //spriteProp = S_FLIPY;
-        //gfxHookIndex = (ANGLE_180DEG - player.hookAngle) >> 2;
     }
     else if (player.hookAngle > ANGLE_90DEG)
     {
         xOffset = 8;
         yOffset = (ANGLE_90DEG - player.hookAngle) >> 2;
-        //spriteProp = S_FLIPY;
-        //gfxHookIndex = (ANGLE_180DEG - player.hookAngle) >> 2;
     }
     else if (player.hookAngle > ANGLE_45DEG)
     {
@@ -341,38 +365,11 @@ void draw_hook(void)
         yOffset = (ANGLE_90DEG - player.hookAngle) >> 2;
     }
 
-    //if (gfxHookIndex > 15) gfxHookIndex = 15;
-
-    /* If I ever want to try manually drawing the line..
-    uint8_t hookX = player.hookX >> 4;
-    uint8_t hookY = player.hookY >> 4;
-    uint8_t playerX = player.x >> 4;
-    uint8_t playerY = player.y >> 4;
-    uint8_t drawY = 0;
-    uint8_t drawX = 0;
-    int16_t a = (player.hookY - player.y) >> 3;
-    int16_t b = a - ((player.hookX - player.x) >> 3);
-    int16_t p = a - ((player.hookX - player.x) >> 4);
-    uint8_t spriteData[16];
-    */
     uint16_t hookPixelX = SUBPIXELS_TO_PIXELS(player.hookX) - camera.x;
     uint16_t hookPixelY = SUBPIXELS_TO_PIXELS(player.hookY) - camera.y;
     for (uint8_t i = 0; i < player.hookSegments; i++)
     {
-        /*
-        // 2 bytes per row
-        for (uint8_t j = 0; j < 16; j += 2)
-        {
-            spriteData[j] = 1;
-            spriteData[j + 1] = 0;
-        }
-
-        set_sprite_data(HOOK_SPRITE_INDEX + i, 1, spriteData);
-        set_sprite_tile(i + 1, HOOK_SPRITE_INDEX + i);
-        */
-
         set_sprite_tile(i + 1, HOOK_SPRITE_TILE_INDEX);
-        //set_sprite_prop(i + 1, spriteProp);
         move_sprite(i + 1, hookPixelX + (xOffset * i), hookPixelY + (yOffset * i));
     }
 
@@ -386,88 +383,14 @@ void draw_hook(void)
     }
 }
 
-// Dead code for drawing line sprites with 16 frame angle difference
-/*
-void draw_hook_sprite()
-{
-    int16_t xOffset = (player.x - player.hookX);
-    if (xOffset < 0)
-    {
-        xOffset = -1 * xOffset;
-        xOffset /= player.hookSegments;
-        xOffset = -1 * xOffset;
-    }
-    else
-    {
-        xOffset /= player.hookSegments;
-    }
-
-    xOffset = xOffset >> 4;
-
-    int16_t yOffset = (player.y - player.hookY);
-    if (yOffset < 0)
-    {
-        yOffset = -1 * yOffset;
-        yOffset /= player.hookSegments;
-        yOffset = -1 * yOffset;
-    }
-    else
-    {
-        yOffset /= player.hookSegments;
-    }
-
-    yOffset = (yOffset >> 4);
-
-    uint8_t gfxHookIndex = player.hookAngle >> 2;
-    uint8_t spriteProp = 0;
-    if (player.hookAngle > ANGLE_270DEG)
-    {
-        spriteProp = S_FLIPX;
-        gfxHookIndex = (ANGLE_360DEG - player.hookAngle) >> 2;
-    }
-    else if (player.hookAngle > ANGLE_180DEG && player.hookAngle <= ANGLE_270DEG)
-    {
-        spriteProp = S_FLIPX | S_FLIPY;
-        gfxHookIndex = (player.hookAngle - ANGLE_180DEG) >> 2;
-    }
-    else if (player.hookAngle > ANGLE_90DEG && player.hookAngle <= ANGLE_180DEG)
-    {
-        spriteProp = S_FLIPY;
-        gfxHookIndex = (ANGLE_180DEG - player.hookAngle) >> 2;
-    }
-
-    if (gfxHookIndex > 15) gfxHookIndex = 15;
-
-    for (uint8_t i = 0; i < player.hookSegments; i++)
-    {
-        set_sprite_tile(i + 1, HOOK_SPRITE_INDEX + gfxHookIndex);
-        set_sprite_prop(i + 1, spriteProp);
-        if (spriteProp & S_FLIPX)
-        {
-            if (spriteProp & S_FLIPY)
-            {
-                move_sprite(i + 1, (player.hookX >> 4) + (xOffset * i) - 3, (player.hookY >> 4) + (yOffset * i) - 3);
-            }
-            else
-            {
-                move_sprite(i + 1, (player.hookX >> 4) + (xOffset * i) - 3, (player.hookY >> 4) + (yOffset * i) + 3);
-            }
-        }
-        else if (spriteProp & S_FLIPY)
-        {
-            move_sprite(i + 1, (player.hookX >> 4) + (xOffset * i) + 3, (player.hookY >> 4) + (yOffset * i) - 3);
-        }
-        else
-        {
-            move_sprite(i + 1, (player.hookX >> 4) + (xOffset * i) + 3, (player.hookY >> 4) + (yOffset * i) + 3);
-        }
-    }
-}
-*/
-
 inline void hide_key(void)
 {
     hide_sprite(KEY_SPRITE_INDEX);
+}
+
+inline void hide_atl(void)
+{
+    hide_sprite(ATL_SPRITE_INDEX);
 }
 
 inline void hide_hook(void)

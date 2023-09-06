@@ -15,4 +15,14 @@ typedef struct level_t
     uint8_t door_open;
 } level_t;
 
+typedef struct basic_obj_t
+{
+    uint16_t x;
+    uint16_t y;
+    uint8_t w;
+    uint8_t h;
+    int16_t xSpd;
+    int16_t ySpd;
+} basic_obj_t;
+
 #endif
