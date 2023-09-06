@@ -56,7 +56,7 @@ void init_title(void)
 
 void init_level(uint8_t level)
 {
-    uint8_t initSprites = (game.currentLevel == 0);
+    uint8_t initSprites = (gfx.sprites_inited == 0);
     if (level > 0 && level <= NUM_LEVELS)
     {
         game.level_data = levels[level - 1];
@@ -71,7 +71,7 @@ void init_level(uint8_t level)
         set_win_data(caverns_TILE_COUNT, font_skinny_TILE_COUNT, font_skinny_tiles);
         set_bkg_submap(0, 0, 20, 18, game.level_data.tiles, game.level_data.tile_width);
         init_player(initSprites, game.level_data.spawn_x, game.level_data.spawn_y);
-        init_window();
         init_key(initSprites);
+        gfx.sprites_inited = 1;
     }
 }

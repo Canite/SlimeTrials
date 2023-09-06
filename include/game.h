@@ -18,8 +18,12 @@ enum GameState
 {
     GS_TITLE_LOAD,
     GS_TITLE,
+    GS_START_GAME,
     GS_INGAME,
-    GS_PAUSE
+    GS_PAUSE,
+    GS_START_LEVEL,
+    GS_FADE_OUT,
+    GS_FADE_IN,
 };
 
 enum GameFlags
@@ -31,6 +35,7 @@ enum GameFlags
 struct Game
 {
     uint16_t gameState;
+    uint16_t nextState;
     uint16_t gameFrame;
     uint16_t levelFrame;
     uint8_t currentLevel;
@@ -48,6 +53,6 @@ extern struct Game game;
 
 void init_game(void);
 void game_loop(void);
-void start_level(uint8_t level);
+void start_level(void);
 
 #endif

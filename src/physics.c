@@ -306,7 +306,10 @@ void apply_physics(void)
         if (collision_botleft == COL_DEATH || collision_topleft == COL_DEATH ||
             collision_botright == COL_DEATH || collision_topright == COL_DEATH)
         {
-            start_level(game.currentLevel);
+            game.gameState = GS_FADE_OUT;
+            game.nextState = GS_START_LEVEL;
+            gfx.fade_delay = 12;
+            gfx.fade_step_length = 2;
             return;
         }
 

@@ -2,10 +2,18 @@
 
 struct Camera camera = {0};
 struct WindowData window = {0};
+struct GraphicsInfo gfx = {0};
 
-uint8_t level_timer_tiles[] = {42, 42, 53, 42, 42};
-uint8_t level_minutes = 0;
-uint8_t level_seconds = 0;
+void init_gfx(void)
+{
+    gfx.fade_delay = 0;
+    gfx.fade_step_length = 0;
+    gfx.sprites_inited = 0;
+    gfx.draw_window = 0;
+
+    init_camera();
+    init_window();
+}
 
 void init_camera(void)
 {
@@ -21,6 +29,12 @@ void init_window(void)
     window.timer_frames = 0;
     window.timer_minutes = 0;
     window.timer_seconds = 0;
+    window.level_timer_tiles[0] = FONT_START_TILE_INDEX;
+    window.level_timer_tiles[1] = FONT_START_TILE_INDEX;
+    window.level_timer_tiles[2] = FONT_COLON_TILE_INDEX;
+    window.level_timer_tiles[3] = FONT_START_TILE_INDEX;
+    window.level_timer_tiles[4] = FONT_START_TILE_INDEX;
+
 }
 
 void clear_background(void)
@@ -31,6 +45,101 @@ void clear_background(void)
         {
             set_tile_xy(i, j, BLANK_TILE_INDEX);
         }
+    }
+}
+
+// Fade is in 6 steps, so step length should be set to delay / 6
+void fade_out(void)
+{
+    if (gfx.fade_delay != 0)
+    {
+        if (gfx.fade_delay == (gfx.fade_step_length * 5))
+        {
+            BGP_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_LITE_GRAY, DMG_LITE_GRAY, DMG_DARK_GRAY);
+            OBP1_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == (gfx.fade_step_length * 4))
+        {
+            BGP_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY);
+            OBP1_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == (gfx.fade_step_length * 3))
+        {
+            BGP_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY);
+            OBP1_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == (gfx.fade_step_length * 2))
+        {
+            BGP_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP1_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == gfx.fade_step_length)
+        {
+            BGP_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK);
+            OBP1_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK, DMG_BLACK);
+        }
+        gfx.fade_delay -= 1;
+    }
+    else
+    {
+        BGP_REG = DMG_PALETTE(DMG_BLACK, DMG_BLACK, DMG_BLACK, DMG_BLACK);
+        OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_BLACK, DMG_BLACK, DMG_BLACK);
+        OBP1_REG = DMG_PALETTE(DMG_BLACK, DMG_BLACK, DMG_BLACK, DMG_BLACK);
+        HIDE_SPRITES;
+        game.gameState = game.nextState;
+        gfx.fade_step_length = 0;
+    }
+}
+
+void fade_in(void)
+{
+    if (gfx.fade_delay != 0)
+    {
+        if (gfx.fade_delay == (gfx.fade_step_length * 5))
+        {
+            BGP_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK);
+            OBP1_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == (gfx.fade_step_length * 4))
+        {
+            BGP_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP1_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == (gfx.fade_step_length * 3))
+        {
+            BGP_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY);
+            OBP1_REG = DMG_PALETTE(DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == (gfx.fade_step_length * 2))
+        {
+            BGP_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY);
+            OBP1_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        }
+        else if (gfx.fade_delay == gfx.fade_step_length)
+        {
+            BGP_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+            OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_LITE_GRAY, DMG_LITE_GRAY, DMG_DARK_GRAY);
+            OBP1_REG = DMG_PALETTE(DMG_LITE_GRAY, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        }
+        gfx.fade_delay -= 1;
+    }
+    else
+    {
+        BGP_REG = DMG_PALETTE(DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY);
+        OBP1_REG = DMG_PALETTE(DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
+        SHOW_SPRITES;
+        game.gameState = game.nextState;
+        gfx.fade_step_length = 0;
     }
 }
 
@@ -54,28 +163,28 @@ void update_window(void)
         }
 
         // minutes
-        level_timer_tiles[0] = FONT_START_TILE_INDEX;
-        level_timer_tiles[1] = FONT_START_TILE_INDEX;
+        window.level_timer_tiles[0] = FONT_START_TILE_INDEX;
+        window.level_timer_tiles[1] = FONT_START_TILE_INDEX;
         uint8_t tmp_minutes = window.timer_minutes;
         while (tmp_minutes >= 10)
         {
             tmp_minutes -= 10;
-            level_timer_tiles[0] += 1;
+            window.level_timer_tiles[0] += 1;
         }
-        level_timer_tiles[1] = FONT_START_TILE_INDEX + tmp_minutes;
+        window.level_timer_tiles[1] = FONT_START_TILE_INDEX + tmp_minutes;
 
         // seconds
-        level_timer_tiles[3] = FONT_START_TILE_INDEX;
-        level_timer_tiles[4] = FONT_START_TILE_INDEX;
+        window.level_timer_tiles[3] = FONT_START_TILE_INDEX;
+        window.level_timer_tiles[4] = FONT_START_TILE_INDEX;
         uint8_t tmp_seconds = window.timer_seconds;
         while (tmp_seconds >= 10)
         {
             tmp_seconds -= 10;
-            level_timer_tiles[3] += 1;
+            window.level_timer_tiles[3] += 1;
         }
-        level_timer_tiles[4] = FONT_START_TILE_INDEX + tmp_seconds;
+        window.level_timer_tiles[4] = FONT_START_TILE_INDEX + tmp_seconds;
 
-        set_win_tiles(15, 0, 5, 1, level_timer_tiles);
+        set_win_tiles(15, 0, 5, 1, window.level_timer_tiles);
         window.timer_frames = 0;
     }
 

@@ -11,7 +11,7 @@
 
 void VBL_isr(void)
 {
-    if (game.gameState == GS_INGAME || game.gameState == GS_PAUSE)
+    if (gfx.draw_window)
     {
         WX_REG = DEVICE_WINDOW_PX_OFFSET_X;
         SHOW_WIN;
@@ -27,7 +27,7 @@ void LCD_isr(void)
 int main(void)
 {
     DISPLAY_OFF;
-    //BGP_REG = DMG_PALETTE(DMG_WHITE, DMG_BLACK, DMG_DARK_GRAY, DMG_LITE_GRAY);
+    BGP_REG = DMG_PALETTE(DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
     OBP0_REG = DMG_PALETTE(DMG_BLACK, DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY);
     OBP1_REG = DMG_PALETTE(DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
     SPRITES_8x8;
@@ -39,15 +39,14 @@ int main(void)
         add_VBL(VBL_isr);
         add_LCD(LCD_isr);
         LYC_REG = 8;
-        //add_SIO(wait_int_handler);
     }
 
     enable_interrupts();
     set_interrupts(LCD_IFLAG | VBL_IFLAG);
 
     init_title();
+    init_gfx();
     init_game();
-    init_camera();
 
     SHOW_BKG;
     SHOW_SPRITES;

@@ -7,8 +7,11 @@ void process_title_input(void)
 {
     if (INPUT_KEYPRESS(J_START))
     {
-        game.gameState = GS_INGAME;
-        start_level(1);
+        game.gameState = GS_FADE_OUT;
+        game.nextState = GS_START_GAME;
+        game.currentLevel += 1;
+        gfx.fade_delay = 30;
+        gfx.fade_step_length = 5;
     }
 }
 
@@ -20,12 +23,14 @@ void process_game_input(void)
     {
         if (INPUT_KEYPRESS(J_LEFT))
         {
-            start_level(game.currentLevel - 1);
+            game.currentLevel -= 1;
+            start_level();
             return;
         }
         else if (INPUT_KEYPRESS(J_RIGHT))
         {
-            start_level(game.currentLevel + 1);
+            game.currentLevel += 1;
+            start_level();
             return;
         }
     }
@@ -136,14 +141,22 @@ void process_game_input(void)
     {
         if (tile_botleft == OPEN_DOOR_TILE1_INDEX || tile_botright == OPEN_DOOR_TILE1_INDEX || tile_topleft == OPEN_DOOR_TILE1_INDEX || tile_topright == OPEN_DOOR_TILE1_INDEX)
         {
-            start_level(game.currentLevel + 1);
+            game.gameState = GS_FADE_OUT;
+            game.nextState = GS_START_LEVEL;
+            game.currentLevel += 1;
+            gfx.fade_delay = 30;
+            gfx.fade_step_length = 5;
             return;
         }
         else if (tile_botleft == CLOSED_DOOR_TILE1_INDEX || tile_botright == CLOSED_DOOR_TILE1_INDEX || tile_topleft == CLOSED_DOOR_TILE1_INDEX || tile_topright == CLOSED_DOOR_TILE1_INDEX)
         {
             if ((game.flags & GF_DOOR_OPEN) != 0)
             {
-                start_level(game.currentLevel + 1);
+                game.gameState = GS_FADE_OUT;
+                game.nextState = GS_START_LEVEL;
+                game.currentLevel += 1;
+                gfx.fade_delay = 30;
+                gfx.fade_step_length = 5;
                 return;
             }
         }
@@ -224,7 +237,7 @@ void process_game_input(void)
     }
 
 
-    if (INPUT_KEYPRESS(J_B))
+    if (INPUT_KEYPRESS(J_B) || (INPUT_KEYPRESS(J_A) && player.grounded == 0))
     {
         player.fallDelay = 0;
         if (player.hookState != HS_ATTACHED)
@@ -296,7 +309,7 @@ void process_game_input(void)
             player.grounded = 0;
         }
     }
-    else if (INPUT_KEYRELEASE(J_B))
+    else if (INPUT_KEYRELEASE(J_B) || INPUT_KEYRELEASE(J_A))
     {
         if (player.hookState == HS_ATTACHED)
         {

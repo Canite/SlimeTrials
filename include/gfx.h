@@ -16,6 +16,7 @@
 #define CLOSED_DOOR_TILE1_INDEX 28
 #define CLOSED_DOOR_TILE2_INDEX 29
 #define FONT_START_TILE_INDEX 42
+#define FONT_COLON_TILE_INDEX 53
 
 struct Camera
 {
@@ -31,16 +32,30 @@ struct WindowData
     uint16_t timer_frames;
     uint8_t timer_minutes;
     uint8_t timer_seconds;
+    uint8_t level_timer_tiles[5];
 };
+
+struct GraphicsInfo
+{
+    uint8_t fade_delay;
+    uint8_t fade_step_length;
+    uint8_t sprites_inited;
+    uint8_t draw_window;
+};
+
 
 extern struct Camera camera;
 extern struct WindowData window;
+extern struct GraphicsInfo gfx;
 
+void init_gfx(void);
 void init_camera(void);
 void init_window(void);
 void update_window(void);
 void update_camera(void);
 void clear_background(void);
+void fade_out(void);
+void fade_in(void);
 void update_game_sprites(void);
 void draw_hook(void);
 inline void hide_key(void);
