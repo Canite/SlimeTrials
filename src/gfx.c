@@ -174,7 +174,7 @@ void update_window(void)
         while (tmp_minutes >= 10)
         {
             tmp_minutes -= 10;
-            window.level_timer_tiles[0] += 1;
+            window.level_timer_tiles[1] += 1;
         }
         window.level_timer_tiles[2] = FONT_START_TILE_INDEX + tmp_minutes;
 
