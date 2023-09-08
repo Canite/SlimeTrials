@@ -5,7 +5,7 @@
 
 struct Player player = {0};
 
-void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY)
+void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY) NONBANKED
 {
     if (initSprites)
     {

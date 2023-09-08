@@ -213,8 +213,11 @@ void update_window(void)
     }
 }
 
-void update_camera(void)
+void update_camera(void) UNBANKED
 {
+    uint8_t currentBank = CURRENT_BANK;
+    SWITCH_ROM(game.level_data.tiles_bank);
+
     if (camera.redraw)
     {
         camera.redraw = 0;
@@ -255,6 +258,8 @@ void update_camera(void)
         camera.oldX = camera.x;
         camera.oldY = camera.y;
     }
+
+    SWITCH_ROM(currentBank);
 }
 
 void update_game_sprites(void)

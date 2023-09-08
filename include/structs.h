@@ -7,7 +7,9 @@
 typedef struct level_t 
 {
     const unsigned char * tiles;
+    uint8_t tiles_bank;
     const unsigned char * collisions;
+    uint8_t collisions_bank;
     uint16_t tile_width;
     uint16_t tile_height;
     uint16_t spawn_x;

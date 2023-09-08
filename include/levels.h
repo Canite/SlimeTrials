@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <gb/gb.h>
-#include <gbdk/incbin.h>
+#include <gbdk/platform.h>
 
 #include "structs.h"
 #include "game.h"
@@ -18,6 +18,7 @@
 #include "../res/level3.h"
 #include "../res/level4.h"
 #include "../res/level5.h"
+#include "../res/level6.h"
 
 #define NUM_LEVELS 5
 

@@ -11,8 +11,11 @@ uint8_t collision_topleft = 0;
 uint8_t collision_topright = 0;
 
 // For solid ground collisions
-uint8_t check_collision(uint16_t x, uint16_t y)
+uint8_t check_collision(uint16_t x, uint16_t y) NONBANKED
 {
+    uint8_t currentBank = CURRENT_BANK;
+    SWITCH_ROM(game.level_data.collisions_bank);
+
     uint8_t col_left = ((x >> 4)-8) >> 3;
     uint8_t col_right = ((x >> 4)-1) >> 3;
     uint8_t col_top = ((y >> 4)-16) >> 3;
@@ -28,6 +31,8 @@ uint8_t check_collision(uint16_t x, uint16_t y)
     col_top = (collision_botleft == COL_SOLID);
     col_bottom = (collision_botright == COL_SOLID);
 
+    SWITCH_ROM(currentBank);
+
     return ((col_top) << 3) |
            ((col_bottom) << 2) |
            ((col_left) << 1) |
@@ -35,8 +40,11 @@ uint8_t check_collision(uint16_t x, uint16_t y)
 }
 
 // For special collisions
-void update_tilemap_collision(uint16_t x, uint16_t y)
+void update_tilemap_collision(uint16_t x, uint16_t y) NONBANKED
 {
+    uint8_t currentBank = CURRENT_BANK;
+    SWITCH_ROM(game.level_data.tiles_bank);
+
     uint8_t col_left = ((x >> 4)-8) >> 3;
     uint8_t col_right = ((x >> 4)-1) >> 3;
     uint8_t col_top = ((y >> 4)-16) >> 3;
@@ -46,6 +54,8 @@ void update_tilemap_collision(uint16_t x, uint16_t y)
     tile_botright  = game.level_data.tiles[col_bottom * game.level_data.tile_width + col_right];
     tile_topleft = game.level_data.tiles[col_top * game.level_data.tile_width + col_left];
     tile_topright = game.level_data.tiles[col_top * game.level_data.tile_width + col_right];
+
+    SWITCH_ROM(currentBank);
 }
 
 uint8_t check_rect_collision(uint16_t x1, uint16_t y1, uint8_t w1, uint8_t h1, uint16_t x2, uint16_t y2, uint8_t w2, uint8_t h2)
@@ -53,7 +63,7 @@ uint8_t check_rect_collision(uint16_t x1, uint16_t y1, uint8_t w1, uint8_t h1, u
     return ((x1 < (x2+w2)) && ((x1+w1) > x2) && (y1 < (h2+y2)) && ((y1+h1) > y2));
 }
 
-uint8_t handle_collision_h(int16_t xTmp, uint8_t col_flags)
+uint8_t handle_collision_h(int16_t xTmp, uint8_t col_flags) NONBANKED
 {
     if (xTmp < 0 && (col_flags & (BOT_LEFT_COL | TOP_LEFT_COL)))
     {
@@ -74,7 +84,7 @@ uint8_t handle_collision_h(int16_t xTmp, uint8_t col_flags)
     return 0;
 }
 
-uint8_t handle_collision_v(int16_t yTmp, uint8_t col_flags)
+uint8_t handle_collision_v(int16_t yTmp, uint8_t col_flags) NONBANKED
 {
     if (yTmp > 0 && (col_flags & (BOT_LEFT_COL | BOT_RIGHT_COL)))
     {
@@ -96,7 +106,7 @@ uint8_t handle_collision_v(int16_t yTmp, uint8_t col_flags)
     return 0;
 }
 
-uint8_t handle_collision_v_corners(int16_t yTmp, uint8_t col_flags)
+uint8_t handle_collision_v_corners(int16_t yTmp, uint8_t col_flags) NONBANKED
 {
     if (yTmp == 0)
     {

@@ -3,7 +3,9 @@
 const level_t levels[] = {
     {
         .tiles = level1_tiles,
+        .tiles_bank = BANK(level1_tiles),
         .collisions = level1_collisions,
+        .collisions_bank = BANK(level1_collisions),
         .tile_width = level1_tile_width,
         .tile_height = level1_tile_height,
         .spawn_x = level1_spawn_x,
@@ -12,7 +14,9 @@ const level_t levels[] = {
     },
     {
         .tiles = level2_tiles,
+        .tiles_bank = BANK(level2_tiles),
         .collisions = level2_collisions,
+        .collisions_bank = BANK(level2_collisions),
         .tile_width = level2_tile_width,
         .tile_height = level2_tile_height,
         .spawn_x = level2_spawn_x,
@@ -21,7 +25,9 @@ const level_t levels[] = {
     },
     {
         .tiles = level3_tiles,
+        .tiles_bank = BANK(level3_tiles),
         .collisions = level3_collisions,
+        .collisions_bank = BANK(level3_collisions),
         .tile_width = level3_tile_width,
         .tile_height = level3_tile_height,
         .spawn_x = level3_spawn_x,
@@ -30,7 +36,9 @@ const level_t levels[] = {
     },
     {
         .tiles = level4_tiles,
+        .tiles_bank = BANK(level4_tiles),
         .collisions = level4_collisions,
+        .collisions_bank = BANK(level4_collisions),
         .tile_width = level4_tile_width,
         .tile_height = level4_tile_height,
         .spawn_x = level4_spawn_x,
@@ -39,22 +47,40 @@ const level_t levels[] = {
     },
     {
         .tiles = level5_tiles,
+        .tiles_bank = BANK(level5_tiles),
         .collisions = level5_collisions,
+        .collisions_bank = BANK(level5_collisions),
         .tile_width = level5_tile_width,
         .tile_height = level5_tile_height,
         .spawn_x = level5_spawn_x,
         .spawn_y = level5_spawn_y,
         .door_open = level5_door_open,
     },
+    {
+        .tiles = level6_tiles,
+        .tiles_bank = BANK(level6_tiles),
+        .collisions = level6_collisions,
+        .collisions_bank = BANK(level6_collisions),
+        .tile_width = level6_tile_width,
+        .tile_height = level6_tile_height,
+        .spawn_x = level6_spawn_x,
+        .spawn_y = level6_spawn_y,
+        .door_open = level6_door_open,
+    },
 };
 
 void init_title(void)
 {
+    uint8_t currentBank = CURRENT_BANK;
+    SWITCH_ROM(BANK(title_screen_tiles));
+
     set_bkg_data(0, title_TILE_COUNT, title_tiles);
     set_bkg_submap(0, 0, 20, 18, title_screen_tiles, title_screen_tile_width);
+
+    SWITCH_ROM(currentBank);
 }
 
-void init_level(uint8_t level)
+void init_level(uint8_t level) NONBANKED
 {
     uint8_t initSprites = (gfx.sprites_inited == 0);
     if (level > 0 && level <= NUM_LEVELS)
@@ -69,7 +95,12 @@ void init_level(uint8_t level)
 
         set_bkg_data(0, caverns_TILE_COUNT, caverns_tiles);
         set_win_data(caverns_TILE_COUNT, font_bold_TILE_COUNT, font_bold_tiles);
+
+        uint8_t currentBank = CURRENT_BANK;
+        SWITCH_ROM(game.level_data.tiles_bank);
         set_bkg_submap(0, 0, 20, 18, game.level_data.tiles, game.level_data.tile_width);
+        SWITCH_ROM(currentBank);
+
         init_player(initSprites, game.level_data.spawn_x, game.level_data.spawn_y);
         init_key(initSprites);
         init_atl(initSprites);

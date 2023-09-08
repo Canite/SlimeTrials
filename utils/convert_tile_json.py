@@ -59,7 +59,10 @@ def main(args):
 
     with open(args.output, "w+") as out_c_file:
         out_c_file.write(f"/*\n\n Auto-generated from Tiled {output_filename}\n\n*/\n\n")
+        out_c_file.write(f"#include <gbdk/platform.h>\n#include <stdint.h>\n\n")
+        out_c_file.write(f"#pragma bank 255\n\n")
         if tile_data:
+            out_c_file.write(f"\nBANKREF({output_filename}_tiles)\n")
             out_c_file.write(f"const unsigned char {output_filename}_tiles[] = " + "\n" + "{" + "\n")
             tile_data_strs = ["    "]
             line_num = 0
@@ -75,7 +78,7 @@ def main(args):
             out_c_file.write("};\n")
 
             if col_data:
-                out_c_file.write("\n")
+                out_c_file.write(f"\nBANKREF({output_filename}_collisions)\n")
                 out_c_file.write(f"const unsigned char {output_filename}_collisions[] = " + "\n" + "{" + "\n")
                 col_data_strs = ["    "]
                 line_num = 0
@@ -92,6 +95,7 @@ def main(args):
 
     with open(os.path.splitext(args.output)[0] + ".h", "w+") as out_h_file:
         out_h_file.write(f"/*\n\n Auto-generated from Tiled {output_filename}\n\n*/\n\n")
+        out_h_file.write(f"#include <gbdk/platform.h>\n#include <stdint.h>\n\n")
         if tile_data:
             out_h_file.write(f"#ifndef _{output_filename.upper()}_H\n")
             out_h_file.write(f"#define _{output_filename.upper()}_H\n\n")
@@ -105,11 +109,13 @@ def main(args):
                 out_h_file.write(f"#define {output_filename}_spawn_y  {spawn_y}\n")
 
             out_h_file.write(f"extern const unsigned char {output_filename}_tiles[];\n")
+            out_h_file.write(f"BANKREF_EXTERN({output_filename}_tiles)\n")
 
             if (col_data):
                 out_h_file.write(f"#define {output_filename}_door_open {door_open}\n")
 
                 out_h_file.write(f"extern const unsigned char {output_filename}_collisions[];\n")
+                out_h_file.write(f"BANKREF_EXTERN({output_filename}_collisions)\n")
 
             out_h_file.write("\n#endif\n")
 

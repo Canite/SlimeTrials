@@ -16,13 +16,21 @@ else
 	EMULATORFLAGS += -jar /home/canight/Downloads/emulicious/Emulicious.jar
 endif
 
+# Configure platform specific LCC flags here:
+LCCFLAGS_gb      = -Wl-yt0x1B # Set an MBC for banking (1B-ROM+MBC5+RAM+BATT)
+LCCFLAGS_pocket  = -Wl-yt0x1B # Usually the same as required for .gb
+LCCFLAGS_duck    = -Wl-yt0x1B # Usually the same as required for .gb
+LCCFLAGS_gbc     = -Wl-yt0x1B -Wm-yc # Same as .gb with: -Wm-yc (gb & gbc) or Wm-yC (gbc exclusive)
+
 LCC = $(GBDK_HOME)bin/lcc
 PNGCONVERTER = $(GBDK_HOME)bin/png2asset
 PNGCONVERTERFLAGS = -tiles_only -spr8x8 -noflip -keep_palette_order -repair_indexed_pal -no_palettes
 
 # You can set flags for LCC here
 # For example, you can uncomment the line below to turn on debug output
-LCCFLAGS += -debug # Uncomment to enable debug output
+CFLAGS += -Iinclude -debug 
+LCCFLAGS += $(LCCFLAGS_gb)
+LCCFLAGS += -Wl-j -Wm-ya4 -autobank -Wb-ext=.rel -Wb-v# Uncomment to enable debug output
 # LCCFLAGS += -v     # Uncomment for lcc verbose output
 
 
@@ -50,32 +58,32 @@ compile.bat: Makefile
 # Compile .png files in "res/" to bin files
 $(RESDIR)/%.c:  $(RESDIR)/%.png
 	$(PNGCONVERTER) $< $(PNGCONVERTERFLAGS) -o $@
-	$(LCC) $(LCCFLAGS) -c -o $(OBJDIR)/$(*F).o $@
+	$(LCC) $(CFLAGS) -c -o $(OBJDIR)/$(*F).o $@
 
 $(RESDIR)/%.c: 	$(RESDIR)/%.tmj
 	$(UTILDIR)/convert_tile_json.py -i $< -o $@
-	$(LCC) $(LCCFLAGS) -c -o $(OBJDIR)/$(*F).o $@
+	$(LCC) $(CFLAGS) -c -o $(OBJDIR)/$(*F).o $@
 
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
-	$(LCC) $(LCCFLAGS) -c -o $@ $<
+	$(LCC) $(CFLAGS) -c -o $@ $<
 
 # Compile .c files in "res/" to .o object files
 $(OBJDIR)/%.o:	$(RESDIR)/%.c
-	$(LCC) $(LCCFLAGS) -c -o $@ $<
+	$(LCC) $(CFLAGS) -c -o $@ $<
 
 # Compile .s assembly files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.s
-	$(LCC) $(LCCFLAGS) -c -o $@ $<
+	$(LCC) $(CFLAGS) -c -o $@ $<
 
 # If needed, compile .c files in "src/" to .s assembly files
 # (not required if .c is compiled directly to .o)
 $(OBJDIR)/%.s:	$(SRCDIR)/%.c
-	$(LCC) $(LCCFLAGS) -S -o $@ $<
+	$(LCC) $(CFLAGS) -S -o $@ $<
 
 # Link the compiled object files into a .gb ROM file
 $(BINS):	$(RESOBJS) $(OBJS)
-	$(LCC) $(LCCFLAGS) -o $(BINS) $(OBJS)
+	$(LCC) $(LCCFLAGS) $(CFLAGS) -o $(BINS) $(OBJS)
 
 prepare:
 	mkdir -p $(OBJDIR)
