@@ -24,7 +24,7 @@ LCCFLAGS_gbc     = -Wl-yt0x1B -Wm-yc # Same as .gb with: -Wm-yc (gb & gbc) or Wm
 
 LCC = $(GBDK_HOME)bin/lcc
 PNGCONVERTER = $(GBDK_HOME)bin/png2asset
-PNGCONVERTERFLAGS = -tiles_only -spr8x8 -noflip -keep_palette_order -repair_indexed_pal -no_palettes
+PNGCONVERTERFLAGS = -tiles_only -spr8x8 -noflip -keep_palette_order -repair_indexed_pal -no_palettes -b 255
 
 # You can set flags for LCC here
 # For example, you can uncomment the line below to turn on debug output

@@ -9,8 +9,15 @@ void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY) NONBANKE
 {
     if (initSprites)
     {
+        uint8_t currentBank = CURRENT_BANK;
+
+        SWITCH_ROM(BANK(slime));
         set_sprite_data(PLAYER_SPRITE_TILE_INDEX, slime_TILE_COUNT, slime_tiles);
+        SWITCH_ROM(BANK(hook));
         set_sprite_data(HOOK_SPRITE_TILE_INDEX, hook_TILE_COUNT, hook_tiles);
+
+        SWITCH_ROM(currentBank);
+
         set_sprite_tile(PLAYER_SPRITE_INDEX, GROUND_IDLE_ANIM_INDEX);
     }
 

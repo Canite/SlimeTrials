@@ -213,7 +213,7 @@ void update_window(void)
     }
 }
 
-void update_camera(void) UNBANKED
+void update_camera(void) NONBANKED
 {
     uint8_t currentBank = CURRENT_BANK;
     SWITCH_ROM(game.level_data.tiles_bank);

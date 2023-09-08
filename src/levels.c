@@ -92,13 +92,17 @@ void init_level(uint8_t level) NONBANKED
         {
             game.flags |= GF_DOOR_OPEN;
         }
+        uint8_t currentBank = CURRENT_BANK;
 
+        SWITCH_ROM(BANK(caverns));
         set_bkg_data(0, caverns_TILE_COUNT, caverns_tiles);
+
+        SWITCH_ROM(BANK(font_bold));
         set_win_data(caverns_TILE_COUNT, font_bold_TILE_COUNT, font_bold_tiles);
 
-        uint8_t currentBank = CURRENT_BANK;
         SWITCH_ROM(game.level_data.tiles_bank);
         set_bkg_submap(0, 0, 20, 18, game.level_data.tiles, game.level_data.tile_width);
+
         SWITCH_ROM(currentBank);
 
         init_player(initSprites, game.level_data.spawn_x, game.level_data.spawn_y);

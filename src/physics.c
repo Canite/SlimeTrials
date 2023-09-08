@@ -369,13 +369,16 @@ void apply_physics(void)
             }
         }
 
+        uint8_t currentBank = CURRENT_BANK;
         if (((game.flags & GF_ITEM_PICKED) == 0) && ((player.flags & PF_HASKEY) == 0) &&
             (tile_botleft == KEY_BACKGROUND_TILE_INDEX || tile_topleft == KEY_BACKGROUND_TILE_INDEX ||
             tile_botright == KEY_BACKGROUND_TILE_INDEX || tile_topright == KEY_BACKGROUND_TILE_INDEX))
         {
             player.flags |= PF_HASKEY;
             game.flags |= GF_ITEM_PICKED;
+            SWITCH_ROM(BANK(caverns));
             set_bkg_data(KEY_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
+            SWITCH_ROM(currentBank);
             key.x = player.x;
             key.y = player.y;
         }
@@ -386,8 +389,10 @@ void apply_physics(void)
             {
                 player.flags &= ~PF_HASKEY;
                 game.flags |= GF_DOOR_OPEN;
+                SWITCH_ROM(BANK(caverns));
                 set_bkg_data(CLOSED_DOOR_TILE1_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE1_INDEX * 16]);
                 set_bkg_data(CLOSED_DOOR_TILE2_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE2_INDEX * 16]);
+                SWITCH_ROM(currentBank);
                 hide_key();
             }
         }
@@ -398,7 +403,9 @@ void apply_physics(void)
         {
             player.flags |= PF_HASATL;
             game.flags |= GF_ITEM_PICKED;
+            SWITCH_ROM(BANK(caverns));
             set_bkg_data(ATL_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
+            SWITCH_ROM(currentBank);
             atl.x = player.x;
             atl.y = player.y;
         }
