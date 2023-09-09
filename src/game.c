@@ -52,14 +52,13 @@ void game_loop(void)
                 game.nextState = GS_INGAME;
                 gfx.fade_delay = 30;
                 gfx.fade_step_length = 5;
-
-                break;
-            case GS_INGAME:
                 if (start_music)
                 {
                     start_music = 0;
                     music_load(BANK(bs_redsandMachine_quiet), &bs_redsandMachine_quiet), music_pause(music_paused = FALSE);
                 }
+                break;
+            case GS_INGAME:
                 process_game_input();
                 apply_physics();
                 update_game_sprites();
