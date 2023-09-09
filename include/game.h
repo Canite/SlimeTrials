@@ -13,7 +13,7 @@
 #include "levels.h"
 #include "key_obj.h"
 #include "sounds.h"
-#include "../res/bs_redsandMachine.h"
+#include "../res/bs_redsandMachine_quiet.h"
 
 // Game state
 enum GameState

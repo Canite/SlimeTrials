@@ -7,6 +7,7 @@
 #include "../include/player.h"
 #include "../include/game.h"
 #include "../include/gfx.h"
+#include "../include/input.h"
 #include "../include/hUGEDriver.h"
 #include "asm/types.h"
 
@@ -36,7 +37,7 @@ int main(void)
     // Enable sound
     NR52_REG = 0x80;
     NR51_REG = 0xFF;
-    NR50_REG = 0x77;
+    NR50_REG = 0x10;
 
     music_init();
 

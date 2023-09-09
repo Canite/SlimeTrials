@@ -297,17 +297,8 @@ void process_game_input(void) BANKED
                 player.hookLength = isqrt(xSqr + ySqr);
                 player.oldHookLength = player.hookLength;
                 player.hookSegments = player.hookLength >> 3;
-                int16_t xMomentum = 0;
+                int16_t xMomentum = (player.xSpd);
                 int16_t yMomentum = 0;
-                if (player.xSpd >= 0)
-                {
-                    xMomentum = (player.xSpd >> 1);
-                }
-                else
-                {
-                    xMomentum = -1 * ((-1 * player.xSpd) >> 1);
-                }
-
                 if (player.ySpd >= 0)
                 {
                     yMomentum = sign(xMomentum) * (player.ySpd >> 1);

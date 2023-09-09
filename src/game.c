@@ -58,7 +58,7 @@ void game_loop(void)
                 if (start_music)
                 {
                     start_music = 0;
-                    music_load(BANK(bs_redsandMachine), &bs_redsandMachine), music_pause(music_paused = FALSE);
+                    music_load(BANK(bs_redsandMachine_quiet), &bs_redsandMachine_quiet), music_pause(music_paused = FALSE);
                 }
                 process_game_input();
                 apply_physics();

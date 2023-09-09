@@ -10,7 +10,6 @@
 #include "utils.h"
 #include "sounds.h"
 #include "../res/sfx.h"
-#include "../res/action.h"
 
 // new and previous values of the joypad input
 extern uint8_t joy;
