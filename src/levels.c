@@ -67,6 +67,17 @@ const level_t levels[] = {
         .spawn_y = level6_spawn_y,
         .door_open = level6_door_open,
     },
+    {
+        .tiles = level7_tiles,
+        .tiles_bank = BANK(level7_tiles),
+        .collisions = level7_collisions,
+        .collisions_bank = BANK(level7_collisions),
+        .tile_width = level7_tile_width,
+        .tile_height = level7_tile_height,
+        .spawn_x = level7_spawn_x,
+        .spawn_y = level7_spawn_y,
+        .door_open = level7_door_open,
+    },
 };
 
 void init_title(void)
@@ -77,6 +88,18 @@ void init_title(void)
     set_bkg_data(0, title_TILE_COUNT, title_tiles);
     SWITCH_ROM(BANK(title_screen_tiles));
     set_bkg_submap(0, 0, 20, 18, title_screen_tiles, title_screen_tile_width);
+
+    SWITCH_ROM(currentBank);
+}
+
+void init_end_screen(void)
+{
+    uint8_t currentBank = CURRENT_BANK;
+
+    SWITCH_ROM(BANK(end));
+    set_bkg_data(0, end_TILE_COUNT, end_tiles);
+    SWITCH_ROM(BANK(end_screen_tiles));
+    set_bkg_submap(0, 0, 20, 18, end_screen_tiles, end_screen_tile_width);
 
     SWITCH_ROM(currentBank);
 }

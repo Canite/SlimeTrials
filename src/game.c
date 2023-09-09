@@ -46,12 +46,12 @@ void game_loop(void)
                 start_music = 1;
 
             case GS_START_LEVEL:
-                start_level();
-                update_game_sprites();
                 game.gameState = GS_FADE_IN;
                 game.nextState = GS_INGAME;
                 gfx.fade_delay = 30;
                 gfx.fade_step_length = 5;
+                start_level();
+                update_game_sprites();
                 if (start_music)
                 {
                     start_music = 0;
@@ -79,6 +79,10 @@ void game_loop(void)
                 fade_in();
 
                 break;
+
+            case GS_END:
+                draw_end_screen();
+                break;
             default:
                 break;
         }
@@ -95,7 +99,17 @@ void game_loop(void)
 
 void start_level(void)
 {
-    init_level(game.currentLevel);
-    init_camera();
-    camera.redraw = 1;
+    if (game.currentLevel > NUM_LEVELS)
+    {
+        init_end_screen();
+        game.nextState = GS_END;
+        gfx.update_background = 1;
+        gfx.draw_window = 0;
+    }
+    else
+    {
+        init_level(game.currentLevel);
+        init_camera();
+        camera.redraw = 1;
+    }
 }

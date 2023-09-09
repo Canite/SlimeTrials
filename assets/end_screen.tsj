@@ -1,0 +1,14 @@
+{ "columns":8,
+ "image":"..\/res\/end.png",
+ "imageheight":8,
+ "imagewidth":64,
+ "margin":0,
+ "name":"end_screen",
+ "spacing":0,
+ "tilecount":8,
+ "tiledversion":"1.10.1",
+ "tileheight":8,
+ "tilewidth":8,
+ "type":"tileset",
+ "version":"1.10"
+}

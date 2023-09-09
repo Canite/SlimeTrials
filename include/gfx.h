@@ -36,7 +36,7 @@ struct WindowData
     uint8_t timer_seconds;
     uint8_t drawn_deaths;
     uint8_t level_timer_tiles[6];
-    uint8_t death_counter_tiles[3];
+    uint8_t death_counter_tiles[4];
 };
 
 struct GraphicsInfo
@@ -63,6 +63,7 @@ void fade_out(void);
 void fade_in(void);
 void update_game_sprites(void);
 void update_background(void);
+void draw_end_screen(void);
 void draw_hook(void);
 inline void hide_atl(void);
 inline void hide_key(void);

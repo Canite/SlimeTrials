@@ -20,6 +20,7 @@ enum GameState
 {
     GS_TITLE_LOAD,
     GS_TITLE,
+    GS_END,
     GS_START_GAME,
     GS_INGAME,
     GS_PAUSE,

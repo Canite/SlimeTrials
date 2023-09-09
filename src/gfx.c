@@ -34,6 +34,7 @@ void init_window(void)
     window.death_counter_tiles[0] = FONT_SKULL_TILE_INDEX;
     window.death_counter_tiles[1] = FONT_START_TILE_INDEX;
     window.death_counter_tiles[2] = FONT_START_TILE_INDEX;
+    window.death_counter_tiles[3] = FONT_START_TILE_INDEX;
     window.level_timer_tiles[0] = FONT_CLOCK_TILE_INDEX;
     window.level_timer_tiles[1] = FONT_START_TILE_INDEX;
     window.level_timer_tiles[2] = FONT_START_TILE_INDEX;
@@ -194,7 +195,10 @@ void update_window(void)
         window.timer_frames = 0;
     }
 
-    window.timer_frames += 1;
+    if (window.timer_minutes < 100)
+    {
+        window.timer_frames += 1;
+    }
 
     // death counter
     if (window.drawn_deaths != game.deaths || window.drawn_deaths == 255)
@@ -203,14 +207,23 @@ void update_window(void)
 
         window.death_counter_tiles[1] = FONT_START_TILE_INDEX;
         window.death_counter_tiles[2] = FONT_START_TILE_INDEX;
+        window.death_counter_tiles[3] = FONT_START_TILE_INDEX;
+
         uint8_t tmp_deaths = window.drawn_deaths;
+        while (tmp_deaths >= 100)
+        {
+            tmp_deaths -= 100;
+            window.death_counter_tiles[1] += 1;
+        }
+
         while (tmp_deaths >= 10)
         {
             tmp_deaths -= 10;
-            window.death_counter_tiles[1] += 1;
+            window.death_counter_tiles[2] += 1;
         }
-        window.death_counter_tiles[2] = FONT_START_TILE_INDEX + tmp_deaths;
-        set_win_tiles(0, 0, 3, 1, window.death_counter_tiles);
+
+        window.death_counter_tiles[3] = FONT_START_TILE_INDEX + tmp_deaths;
+        set_win_tiles(0, 0, 4, 1, window.death_counter_tiles);
     }
 }
 
@@ -335,6 +348,7 @@ void update_background(void)
 {
     if (gfx.update_background)
     {
+        gfx.update_background = 0;
         uint8_t currentBank = CURRENT_BANK;
         if ((player.flags & PF_HASKEY) != 0)
         {
@@ -357,6 +371,18 @@ void update_background(void)
             set_bkg_data(CLOSED_DOOR_TILE2_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE2_INDEX * 16]);
             SWITCH_ROM(currentBank);
         }
+    }
+}
+
+
+void draw_end_screen(void)
+{
+    if (gfx.update_background)
+    {
+        gfx.update_background = 0;
+        hide_sprite(PLAYER_SPRITE_INDEX);
+        set_bkg_tiles(8, 11, 5, 1, &window.level_timer_tiles[1]);
+        set_bkg_tiles(8, 8, 3, 1, &window.death_counter_tiles[1]);
     }
 }
 

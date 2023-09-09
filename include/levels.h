@@ -12,19 +12,23 @@
 #include "gfx.h"
 #include "../res/caverns.h"
 #include "../res/title.h"
+#include "../res/end.h"
 #include "../res/title_screen.h"
+#include "../res/end_screen.h"
 #include "../res/level1.h"
 #include "../res/level2.h"
 #include "../res/level3.h"
 #include "../res/level4.h"
 #include "../res/level5.h"
 #include "../res/level6.h"
+#include "../res/level7.h"
 
-#define NUM_LEVELS 6
+#define NUM_LEVELS 7
 
 extern const level_t levels[];
 
 void init_title(void);
+void init_end_screen(void);
 void init_level(uint8_t level);
 
 #endif
