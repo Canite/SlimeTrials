@@ -10,6 +10,7 @@ void init_gfx(void)
     gfx.fade_step_length = 0;
     gfx.sprites_inited = 0;
     gfx.draw_window = 0;
+    gfx.update_background = 0;
 
     init_camera();
     init_window();
@@ -328,6 +329,35 @@ void update_game_sprites(void)
         move_sprite(ATL_SPRITE_INDEX, atlPixelX, atlPixelY);
     }
 
+}
+
+void update_background(void)
+{
+    if (gfx.update_background)
+    {
+        uint8_t currentBank = CURRENT_BANK;
+        if ((player.flags & PF_HASKEY) != 0)
+        {
+            SWITCH_ROM(BANK(caverns));
+            set_bkg_data(KEY_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
+            SWITCH_ROM(currentBank);
+        }
+
+        if ((player.flags & PF_HASATL) != 0)
+        {
+            SWITCH_ROM(BANK(caverns));
+            set_bkg_data(ATL_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
+            SWITCH_ROM(currentBank);
+        }
+
+        if ((game.flags & GF_DOOR_OPEN) != 0)
+        {
+            SWITCH_ROM(BANK(caverns));
+            set_bkg_data(CLOSED_DOOR_TILE1_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE1_INDEX * 16]);
+            set_bkg_data(CLOSED_DOOR_TILE2_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE2_INDEX * 16]);
+            SWITCH_ROM(currentBank);
+        }
+    }
 }
 
 void draw_hook(void)

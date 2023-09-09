@@ -22,6 +22,7 @@ struct Player
     int16_t ySpd;
     uint8_t flags;
     uint8_t colFlags;
+    uint8_t oldColFlags;
     int16_t angularAcc;
     int16_t angularVel;
     uint8_t facing;
@@ -31,6 +32,7 @@ struct Player
     uint8_t numAnimFrames;
     uint8_t animSpeed;
     uint8_t grounded;
+    uint8_t soundDelay;
     uint8_t fallDelay;
     uint8_t iFrames;
     uint8_t hookState;

@@ -9,12 +9,20 @@ ifdef OS
 	GBDK_HOME = "F:/gbdk/"
 	RGBDS_HOME = "F:/GBDev/rgbds-0.6.1-win64/"
 	EMULATOR = "F:/bgb/bgb.exe"
+	HUGE_HOME = "F:/hugetracker
 else
-	GBDK_HOME = "/home/canight/gbdk/"
-	RGBDS_HOME = ""
-	EMULATOR = "java"
+	GBDK_HOME = /home/canight/gbdk/
+	RGBDS_HOME = /home/canight/rgbds
+	HUGE_HOME = /home/canight/hugetracker
+	EMULATOR = java
 	EMULATORFLAGS += -jar /home/canight/Downloads/emulicious/Emulicious.jar
 endif
+
+SRCDIR      = src
+OBJDIR      = obj
+RESDIR      = res
+EXTDIR 		= ext
+UTILDIR     = utils
 
 # Configure platform specific LCC flags here:
 LCCFLAGS_gb      = -Wl-yt0x1B # Set an MBC for banking (1B-ROM+MBC5+RAM+BATT)
@@ -25,29 +33,31 @@ LCCFLAGS_gbc     = -Wl-yt0x1B -Wm-yc # Same as .gb with: -Wm-yc (gb & gbc) or Wm
 LCC = $(GBDK_HOME)bin/lcc
 PNGCONVERTER = $(GBDK_HOME)bin/png2asset
 PNGCONVERTERFLAGS = -tiles_only -spr8x8 -noflip -keep_palette_order -repair_indexed_pal -no_palettes -b 255
+RGBASM = $(RGBDS_HOME)/rgbasm
+UGE2SOURCE = $(HUGE_HOME)/uge2source
 
 # You can set flags for LCC here
-# For example, you can uncomment the line below to turn on debug output
-CFLAGS += -Iinclude -debug 
+CFLAGS += -Iinclude -Iext -debug 
 LCCFLAGS += $(LCCFLAGS_gb)
-LCCFLAGS += -Wl-j -Wm-ya4 -autobank -Wb-ext=.rel -Wb-v# Uncomment to enable debug output
+LCCFLAGS += -Wl-j -Wm-ya4 -autobank -Wb-ext=.rel -Wb-v
+LCCFLAGS += -Wl-l$(EXTDIR)/hUGEDriver.lib
 # LCCFLAGS += -v     # Uncomment for lcc verbose output
 
+RGB2SDAS = python $(UTILDIR)/rgb2sdas.py
 
 # You can set the name of the .gb ROM file here
 PROJECTNAME    = SlimeTrials
 
-SRCDIR      = src
-OBJDIR      = obj
-RESDIR      = res
-UTILDIR     = utils
 BINS	    = $(OBJDIR)/$(PROJECTNAME).gb
 CSOURCES    = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.c))) $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.c)))
-ASMSOURCES  = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.s)))
+ASMSOURCES  = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.asm)))
+EXTASMSOURCES = $(foreach dir,$(EXTDIR),$(notdir $(wildcard $(dir)/*.asm)))
 IMAGEFILES  = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.png)))
 TILEDFILES  = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.tmj)))
-OBJS        = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.s=$(OBJDIR)/%.o)
-RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.c $(TILEDFILES:%.tmj=$(RESDIR)/%.c))
+HUGEFILES   = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.uge)))
+SFXFILES   = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.sav)))
+OBJS        = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.asm=$(OBJDIR)/%.o) $(EXTASMSOURCES:%.asm=$(OBJDIR)/%.o)
+RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.c) $(TILEDFILES:%.tmj=$(RESDIR)/%.c) $(HUGEFILES:%.uge=$(RESDIR)/%.c) $(SFXFILES:%.sav=$(RESDIR)/%.c)
 
 all:	prepare $(BINS)
 
@@ -64,6 +74,15 @@ $(RESDIR)/%.c: 	$(RESDIR)/%.tmj
 	$(UTILDIR)/convert_tile_json.py -i $< -o $@
 	$(LCC) $(CFLAGS) -c -o $(OBJDIR)/$(*F).o $@
 
+$(RESDIR)/%.c: $(RESDIR)/%.uge
+	$(UGE2SOURCE) $< -b 255 $(*F) $@
+	$(UTILDIR)/create_huge_header.py -i $@
+	$(LCC) $(CFLAGS) -c -o $(OBJDIR)/$(*F).o $@
+
+$(RESDIR)/%.c: $(RESDIR)/%.sav
+	$(UTILDIR)/fxhammer2data.py -o $@ $<
+	$(LCC) $(CFLAGS) -c -o $(OBJDIR)/$(*F).o $@
+
 # Compile .c files in "src/" to .o object files
 $(OBJDIR)/%.o:	$(SRCDIR)/%.c
 	$(LCC) $(CFLAGS) -c -o $@ $<
@@ -73,8 +92,15 @@ $(OBJDIR)/%.o:	$(RESDIR)/%.c
 	$(LCC) $(CFLAGS) -c -o $@ $<
 
 # Compile .s assembly files in "src/" to .o object files
-$(OBJDIR)/%.o:	$(SRCDIR)/%.s
+$(OBJDIR)/%.o:	$(SRCDIR)/%.asm
 	$(LCC) $(CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/%.o:	$(OBJDIR)/%.obj
+	$(RGB2SDAS) $(RGB2SDASFLAGS) -o$@ $<
+
+# Compile external .s assembly files in "src/" to .o object files
+$(OBJDIR)/%.obj:	$(EXTDIR)/%.asm
+	$(RGBASM) -i.. -DGBDK -o$@ $<
 
 # If needed, compile .c files in "src/" to .s assembly files
 # (not required if .c is compiled directly to .o)

@@ -43,6 +43,8 @@ void game_loop(void)
                 break;
             case GS_START_GAME:
                 gfx.draw_window = 1;
+                start_music = 1;
+
             case GS_START_LEVEL:
                 start_level();
                 update_game_sprites();
@@ -53,10 +55,16 @@ void game_loop(void)
 
                 break;
             case GS_INGAME:
+                if (start_music)
+                {
+                    start_music = 0;
+                    music_load(BANK(bs_redsandMachine), &bs_redsandMachine), music_pause(music_paused = FALSE);
+                }
                 process_game_input();
                 apply_physics();
                 update_game_sprites();
                 update_window();
+                update_background();
                 game.levelFrame += 1;
 
                 break;

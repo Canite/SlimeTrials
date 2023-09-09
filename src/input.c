@@ -1,12 +1,19 @@
 #include "../include/input.h"
 
+#pragma bank 255
+
+BANKREF(joy)
 uint8_t joy = 0;
+
+BANKREF(old_joy)
 uint8_t old_joy = 0;
 
-void process_title_input(void)
+BANKREF(process_title_input)
+void process_title_input(void) BANKED
 {
     if (INPUT_KEYPRESS(J_START))
     {
+        music_play_sfx(BANK(sfx_11), sfx_11, SFX_MUTE_MASK(sfx_11), MUSIC_SFX_PRIORITY_NORMAL);
         game.gameState = GS_FADE_OUT;
         game.nextState = GS_START_GAME;
         game.currentLevel += 1;
@@ -15,7 +22,8 @@ void process_title_input(void)
     }
 }
 
-void process_game_input(void)
+BANKREF(process_game_input)
+void process_game_input(void) BANKED
 {
     // DEBUG
     // level change
@@ -130,6 +138,8 @@ void process_game_input(void)
                 player.animSpeed = AIR_IDLE_ANIM_SPEED;
                 player.animFrame = 0;
             }
+
+            music_play_sfx(BANK(sfx_02), sfx_02, SFX_MUTE_MASK(sfx_02), MUSIC_SFX_PRIORITY_NORMAL);
         }
     }
     else if (player.ySpd < 0 && !player.grounded && INPUT_KEYRELEASE(J_A))
@@ -348,7 +358,8 @@ void process_game_input(void)
     }
 }
 
-void process_pause_input(void)
+BANKREF(process_pause_input)
+void process_pause_input(void) BANKED
 {
     if (INPUT_KEYPRESS(J_START))
     {

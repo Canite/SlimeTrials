@@ -30,6 +30,7 @@ void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY) NONBANKE
     player.h = 8;
     player.flags = 0;
     player.colFlags = 0;
+    player.oldColFlags = 0;
     player.angularAcc = 0;
     player.angularVel = 0;
     player.facing = 0;
@@ -40,6 +41,7 @@ void init_player(uint8_t initSprites, uint16_t startX, uint16_t startY) NONBANKE
     player.animSpeed = GROUND_IDLE_ANIM_SPEED;
     player.grounded = 0;
     player.fallDelay = 0;
+    player.soundDelay = 0;
     player.iFrames = 0;
     player.hookState = HS_STOWED;
     player.hookX = 0;

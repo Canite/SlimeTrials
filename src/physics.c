@@ -1,43 +1,8 @@
 #include "../include/physics.h"
 
-const int8_t sine_wave[256] = {
-    0,3,6,9,12,16,19,22,25,28,31,34,37,40,43,46,49,51,54,57,60,
-    63,65,68,71,73,76,78,81,83,85,88,90,92,94,96,98,100,102,104,
-    106,107,109,111,112,113,115,116,117,118,120,121,122,122,123,
-    124,125,125,126,126,126,127,127,127,127,127,127,127,126,126,
-    126,125,125,124,123,122,122,121,120,118,117,116,115,113,112,
-    111,109,107,106,104,102,100,98,96,94,92,90,88,85,83,81,78,76,
-    73,71,68,65,63,60,57,54,51,49,46,43,40,37,34,31,28,25,22,19,
-    16,12,9,6,3,0,-3,-6,-9,-12,-16,-19,-22,-25,-28,-31,-34,-37,
-    -40,-43,-46,-49,-51,-54,-57,-60,-63,-65,-68,-71,-73,-76,-78,
-    -81,-83,-85,-88,-90,-92,-94,-96,-98,-100,-102,-104,-106,-107,
-    -109,-111,-112,-113,-115,-116,-117,-118,-120,-121,-122,-122,
-    -123,-124,-125,-125,-126,-126,-126,-127,-127,-127,-127,-127,
-    -127,-127,-126,-126,-126,-125,-125,-124,-123,-122,-122,-121,
-    -120,-118,-117,-116,-115,-113,-112,-111,-109,-107,-106,-104,
-    -102,-100,-98,-96,-94,-92,-90,-88,-85,-83,-81,-78,-76,-73,-71,
-    -68,-65,-63,-60,-57,-54,-51,-49,-46,-43,-40,-37,-34,-31,-28,
-    -25,-22,-19,-16,-12,-9,-6,-3
-};
+#pragma bank 255
 
-uint16_t isqrt(uint16_t x) NONBANKED
-{
-    uint16_t m, y, b;
-    m = 0x4000;
-    y = 0;
-    while (m != 0) {
-        b = y | m;
-        y >>= 1;
-        if (x >= b) {
-            x -= b;
-            y |= m;
-        }
-        m >>= 2;
-    }
-    return y;
-}
-
-void move_obj_to_player(basic_obj_t* obj)
+static void move_obj_to_player(basic_obj_t* obj)
 {
     uint16_t objTargetX = player.x;
     uint16_t objTargetY = player.y - 16;
@@ -76,7 +41,8 @@ void move_obj_to_player(basic_obj_t* obj)
     }
 }
 
-void apply_physics(void)
+BANKREF(apply_physics)
+void apply_physics(void) BANKED
 {
     if (player.fallDelay)
     {
@@ -86,14 +52,20 @@ void apply_physics(void)
     {
         player.iFrames -= 1;
     }
+    if (player.soundDelay)
+    {
+        player.soundDelay -= 1;
+    }
 
     // Unhooked physics
     if (player.hookState != HS_ATTACHED)
     {
+        player.oldColFlags = player.colFlags;
         int8_t xSpdSign = sign(player.xSpd);
         int8_t ySpdSign = sign(player.ySpd);
         int16_t xTmp = 0;
         int16_t yTmp = 0;
+        uint8_t prevGrounded = player.grounded;
         player.grounded = 0;
         while (xTmp != player.xSpd || yTmp != player.ySpd)
         {
@@ -272,6 +244,12 @@ void apply_physics(void)
         int8_t angularVelSign = sign(player.angularVel);
         if (col_flags)
         {
+            if (col_flags != player.oldColFlags && player.soundDelay == 0)
+            {
+                music_play_sfx(BANK(sfx_03), sfx_03, SFX_MUTE_MASK(sfx_03), MUSIC_SFX_PRIORITY_NORMAL);
+                player.soundDelay = 60;
+            }
+
             while (col_flags && nAttempts > 0)
             {
                 if (angleSettleAlignment == 0 || player.oldHookLength != player.hookLength)
@@ -308,18 +286,23 @@ void apply_physics(void)
             // Failed to update due to collision
             if (nAttempts == 0)
             {
+                player.hookAngle = oldAngle;
                 if (player.oldHookLength != player.hookLength)
                 {
                     player.hookLength = player.oldHookLength;
+                    xOffset = (player.hookLength * SIN(player.hookAngle)) >> 3;
+                    yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
+                    player.x = player.hookX + xOffset;
+                    player.y = player.hookY + yOffset;
                 }
-                player.hookAngle = oldAngle;
-                xOffset = (player.hookLength * SIN(player.hookAngle)) >> 3;
-                yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
-                handle_collision_h(xOffset, col_flags);
-                check_collision(player.x, player.y + yOffset);
-                handle_collision_v(yOffset, col_flags);
-                //player.x = player.hookX + xOffset;
-                //player.y = player.hookY + yOffset;
+                else
+                {
+                    xOffset = (player.hookLength * SIN(player.hookAngle)) >> 3;
+                    yOffset = (player.hookLength * COS(player.hookAngle)) >> 3;
+                    handle_collision_h(xOffset, col_flags);
+                    check_collision(player.x, player.y + yOffset);
+                    handle_collision_v(yOffset, col_flags);
+                }
             }
             else
             {
@@ -327,6 +310,8 @@ void apply_physics(void)
                 player.angularVel = -(player.angularVel >> 3);
             }
         }
+
+        player.oldColFlags = player.colFlags;
 
         // Decelerate, otherwise we'll swing back and forth forever
         if (!bPlayerInput)
@@ -354,12 +339,14 @@ void apply_physics(void)
         {
             if ((player.flags & PF_HASATL) != 0)
             {
+                music_play_sfx(BANK(sfx_09), sfx_09, SFX_MUTE_MASK(sfx_09), MUSIC_SFX_PRIORITY_NORMAL); 
                 player.flags &= ~PF_HASATL;
                 player.iFrames = 180;
                 hide_atl();
             }
             else if (player.iFrames == 0)
             {
+                music_play_sfx(BANK(sfx_09), sfx_09, SFX_MUTE_MASK(sfx_09), MUSIC_SFX_PRIORITY_NORMAL); 
                 game.gameState = GS_FADE_OUT;
                 game.nextState = GS_START_LEVEL;
                 game.deaths += 1;
@@ -369,16 +356,13 @@ void apply_physics(void)
             }
         }
 
-        uint8_t currentBank = CURRENT_BANK;
         if (((game.flags & GF_ITEM_PICKED) == 0) && ((player.flags & PF_HASKEY) == 0) &&
             (tile_botleft == KEY_BACKGROUND_TILE_INDEX || tile_topleft == KEY_BACKGROUND_TILE_INDEX ||
             tile_botright == KEY_BACKGROUND_TILE_INDEX || tile_topright == KEY_BACKGROUND_TILE_INDEX))
         {
             player.flags |= PF_HASKEY;
             game.flags |= GF_ITEM_PICKED;
-            SWITCH_ROM(BANK(caverns));
-            set_bkg_data(KEY_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
-            SWITCH_ROM(currentBank);
+            gfx.update_background = 1;
             key.x = player.x;
             key.y = player.y;
         }
@@ -389,10 +373,8 @@ void apply_physics(void)
             {
                 player.flags &= ~PF_HASKEY;
                 game.flags |= GF_DOOR_OPEN;
-                SWITCH_ROM(BANK(caverns));
-                set_bkg_data(CLOSED_DOOR_TILE1_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE1_INDEX * 16]);
-                set_bkg_data(CLOSED_DOOR_TILE2_INDEX, 1, &caverns_tiles[OPEN_DOOR_TILE2_INDEX * 16]);
-                SWITCH_ROM(currentBank);
+                gfx.update_background = 1;
+                music_play_sfx(BANK(sfx_05), sfx_05, SFX_MUTE_MASK(sfx_05), MUSIC_SFX_PRIORITY_NORMAL);
                 hide_key();
             }
         }
@@ -403,9 +385,7 @@ void apply_physics(void)
         {
             player.flags |= PF_HASATL;
             game.flags |= GF_ITEM_PICKED;
-            SWITCH_ROM(BANK(caverns));
-            set_bkg_data(ATL_BACKGROUND_TILE_INDEX, 1, caverns_tiles);
-            SWITCH_ROM(currentBank);
+            gfx.update_background = 1;
             atl.x = player.x;
             atl.y = player.y;
         }

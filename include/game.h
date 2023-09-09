@@ -12,6 +12,8 @@
 #include "gfx.h"
 #include "levels.h"
 #include "key_obj.h"
+#include "sounds.h"
+#include "../res/bs_redsandMachine.h"
 
 // Game state
 enum GameState

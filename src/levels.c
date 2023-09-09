@@ -72,9 +72,10 @@ const level_t levels[] = {
 void init_title(void)
 {
     uint8_t currentBank = CURRENT_BANK;
-    SWITCH_ROM(BANK(title_screen_tiles));
 
+    SWITCH_ROM(BANK(title));
     set_bkg_data(0, title_TILE_COUNT, title_tiles);
+    SWITCH_ROM(BANK(title_screen_tiles));
     set_bkg_submap(0, 0, 20, 18, title_screen_tiles, title_screen_tile_width);
 
     SWITCH_ROM(currentBank);

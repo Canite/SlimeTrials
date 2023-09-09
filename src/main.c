@@ -7,6 +7,7 @@
 #include "../include/player.h"
 #include "../include/game.h"
 #include "../include/gfx.h"
+#include "../include/hUGEDriver.h"
 #include "asm/types.h"
 
 void VBL_isr(void)
@@ -32,17 +33,27 @@ int main(void)
     OBP1_REG = DMG_PALETTE(DMG_WHITE, DMG_LITE_GRAY, DMG_DARK_GRAY, DMG_BLACK);
     SPRITES_8x8;
 
+    // Enable sound
+    NR52_REG = 0x80;
+    NR51_REG = 0xFF;
+    NR50_REG = 0x77;
+
+    music_init();
+
     disable_interrupts();
 
     CRITICAL {
         STAT_REG |= STATF_LYC;
+        music_setup_timer();
+
         add_VBL(VBL_isr);
         add_LCD(LCD_isr);
+        add_low_priority_TIM(music_play_isr);
         LYC_REG = 8;
     }
 
     enable_interrupts();
-    set_interrupts(LCD_IFLAG | VBL_IFLAG);
+    set_interrupts(LCD_IFLAG | VBL_IFLAG | IE_REG | TIM_IFLAG);
 
     init_title();
     init_gfx();

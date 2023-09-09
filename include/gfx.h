@@ -45,6 +45,7 @@ struct GraphicsInfo
     uint8_t fade_step_length;
     uint8_t sprites_inited;
     uint8_t draw_window;
+    uint8_t update_background;
 };
 
 
@@ -61,6 +62,7 @@ void clear_background(void);
 void fade_out(void);
 void fade_in(void);
 void update_game_sprites(void);
+void update_background(void);
 void draw_hook(void);
 inline void hide_atl(void);
 inline void hide_key(void);

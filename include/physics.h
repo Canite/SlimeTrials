@@ -33,11 +33,6 @@
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define CLAMP(a, min, max) (((a) < (min)) ? (min) : (((a) > (max)) ? (max) : (a)))
 
-extern const int8_t sine_wave[256];
-
-#define SIN(a)  (sine_wave[(uint8_t)(a)])
-#define COS(a)  (sine_wave[(uint8_t)((uint8_t)(a) + 64u)])
-
 #define ANGLE_0DEG      0
 #define ANGLE_45DEG     32
 #define ANGLE_90DEG     64
@@ -48,8 +43,9 @@ extern const int8_t sine_wave[256];
 #define ANGLE_315DEG    224
 #define ANGLE_360DEG    255
 
-void apply_physics(void);
-void move_obj_to_player(basic_obj_t* obj);
-uint16_t isqrt(uint16_t x) NONBANKED;
+void apply_physics(void) BANKED;
+BANKREF_EXTERN(apply_physics)
+
+static void move_obj_to_player(basic_obj_t* obj);
 
 #endif
