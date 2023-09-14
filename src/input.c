@@ -27,6 +27,7 @@ void process_game_input(void) BANKED
 {
     // DEBUG
     // level change
+    /*
     if (INPUT_KEY(J_SELECT))
     {
         if (INPUT_KEYPRESS(J_LEFT))
@@ -42,9 +43,11 @@ void process_game_input(void) BANKED
             return;
         }
     }
+    */
 
     if (INPUT_KEYPRESS(J_START))
     {
+        music_play_sfx(BANK(sfx_11), sfx_11, SFX_MUTE_MASK(sfx_11), MUSIC_SFX_PRIORITY_NORMAL);
         game.gameState = GS_PAUSE;
         return;
     }
