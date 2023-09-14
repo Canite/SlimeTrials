@@ -30,7 +30,7 @@ void init_window(void)
     window.timer_frames = 0;
     window.timer_minutes = 0;
     window.timer_seconds = 0;
-    window.drawn_deaths = 255;
+    window.drawn_deaths = 1000;
     window.death_counter_tiles[0] = FONT_SKULL_TILE_INDEX;
     window.death_counter_tiles[1] = FONT_START_TILE_INDEX;
     window.death_counter_tiles[2] = FONT_START_TILE_INDEX;
@@ -195,13 +195,13 @@ void update_window(void)
         window.timer_frames = 0;
     }
 
-    if (window.timer_minutes < 100)
+    if (window.timer_minutes < 99)
     {
         window.timer_frames += 1;
     }
 
     // death counter
-    if (window.drawn_deaths != game.deaths || window.drawn_deaths == 255)
+    if (window.drawn_deaths != game.deaths || window.drawn_deaths == 1000)
     {
         window.drawn_deaths = game.deaths;
 
@@ -209,7 +209,7 @@ void update_window(void)
         window.death_counter_tiles[2] = FONT_START_TILE_INDEX;
         window.death_counter_tiles[3] = FONT_START_TILE_INDEX;
 
-        uint8_t tmp_deaths = window.drawn_deaths;
+        uint16_t tmp_deaths = window.drawn_deaths;
         while (tmp_deaths >= 100)
         {
             tmp_deaths -= 100;

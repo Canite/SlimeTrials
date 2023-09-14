@@ -34,7 +34,7 @@ struct WindowData
     uint16_t timer_frames;
     uint8_t timer_minutes;
     uint8_t timer_seconds;
-    uint8_t drawn_deaths;
+    uint16_t drawn_deaths;
     uint8_t level_timer_tiles[6];
     uint8_t death_counter_tiles[4];
 };

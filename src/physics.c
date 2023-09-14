@@ -349,9 +349,12 @@ void apply_physics(void) BANKED
                 music_play_sfx(BANK(sfx_09), sfx_09, SFX_MUTE_MASK(sfx_09), MUSIC_SFX_PRIORITY_NORMAL); 
                 game.gameState = GS_FADE_OUT;
                 game.nextState = GS_START_LEVEL;
-                game.deaths += 1;
                 gfx.fade_delay = 12;
                 gfx.fade_step_length = 2;
+                if (game.deaths < 999)
+                {
+                    game.deaths += 1;
+                }
                 return;
             }
         }
