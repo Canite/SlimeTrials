@@ -71,10 +71,17 @@ void process_game_input(void) BANKED
         } 
         else if (player.hookState == HS_ATTACHED)
         {
-            if (player.angularVel > MIN_ANGULAR_VELOCITY &&
+            if (player.angularVel > (MIN_ANGULAR_VELOCITY  + (player.hookLength >> 2)) &&
                (player.hookLength >= MIN_HOOK_LENGTH && player.hookLength <= MAX_HOOK_LENGTH))
             {
-                player.angularVel -= (((MAX_HOOK_LENGTH - player.hookLength) >> 2) + INPUT_ANGULAR_ACC);
+                if (player.hookAngle < ANGLE_180DEG)
+                {
+                    player.angularVel -= INPUT_ANGULAR_ACC;
+                }
+                else
+                {
+                    player.angularVel -= INPUT_ANGULAR_ACC - (SIN(player.hookAngle) >> 2);
+                }
             }
         }
         else
@@ -101,10 +108,17 @@ void process_game_input(void) BANKED
         } 
         else if (player.hookState == HS_ATTACHED)
         {
-            if (player.angularVel < (MAX_ANGULAR_VELOCITY) &&
+            if (player.angularVel < ((MAX_ANGULAR_VELOCITY) - (player.hookLength >> 2)) &&
                (player.hookLength >= MIN_HOOK_LENGTH && player.hookLength <= MAX_HOOK_LENGTH))
             {
-                player.angularVel += (((MAX_HOOK_LENGTH - player.hookLength) >> 2) + INPUT_ANGULAR_ACC) + 1;
+                if (player.hookAngle < ANGLE_180DEG)
+                {
+                    player.angularVel += INPUT_ANGULAR_ACC;
+                }
+                else
+                {
+                    player.angularVel += INPUT_ANGULAR_ACC - (SIN(player.hookAngle) >> 2);
+                }
             }
         }
         else
@@ -334,10 +348,29 @@ void process_game_input(void) BANKED
             player.hookState = HS_STOWED;
             if (player.hookLength >= MIN_HOOK_LENGTH)
             {
-                player.xSpd = (player.angularVel * COS(player.hookAngle)) >> 7;
-                //player.xSpd += sign(player.xSpd) << 1;
-                player.ySpd = -(player.angularVel * SIN(player.hookAngle)) >> 7;
-                //player.ySpd += sign(player.ySpd) << 1;
+                int16_t xMomentum = (player.angularVel * COS(player.hookAngle)) >> 7;
+                if (xMomentum > 0)
+                {
+                    xMomentum += (player.hookLength >> 2);
+                }
+                else if (xMomentum < 0)
+                {
+                    xMomentum -= (player.hookLength >> 2);
+                }
+                player.xSpd = xMomentum;
+
+                int16_t yMomentum = (player.angularVel * SIN(player.hookAngle)) >> 7;
+                /*
+                if (yMomentum > 0)
+                {
+                    yMomentum += (player.hookLength >> 3);
+                }
+                else if (yMomentum < 0)
+                {
+                    yMomentum -= (player.hookLength >> 3);
+                }
+                */
+                player.ySpd = -yMomentum;
             }
             else
             {

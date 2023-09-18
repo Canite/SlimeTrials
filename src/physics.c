@@ -178,15 +178,15 @@ void apply_physics(void) BANKED
     else
     {
         uint8_t bPlayerInput = (player.flags & PF_HASINPUT) != 0;
-        player.angularAcc = SIN(player.hookAngle);
+        player.angularAcc = SIN(player.hookAngle) >> 1;
         if (player.angularAcc < 0)
         {
             player.angularAcc = -1 * player.angularAcc;
-            player.angularAcc = player.angularAcc >> (player.hookSegments >> 1);
+            player.angularAcc = player.angularAcc / (player.hookLength >> 2);
         }
         else
         {
-            player.angularAcc = player.angularAcc >> (player.hookSegments >> 1);
+            player.angularAcc = player.angularAcc / (player.hookLength >> 2);
             player.angularAcc = -1 * player.angularAcc;
         }
 
@@ -196,7 +196,7 @@ void apply_physics(void) BANKED
         }
 
         player.angularVel += player.angularAcc;
-        player.angularVel = CLAMP(player.angularVel, MIN_ANGULAR_VELOCITY + (player.hookSegments << 1), MAX_ANGULAR_VELOCITY - (player.hookSegments << 1));
+        player.angularVel = CLAMP(player.angularVel, MIN_ANGULAR_VELOCITY + (player.hookLength >> 2), MAX_ANGULAR_VELOCITY - (player.hookLength >> 2));
 
         // Taper off to angle 0 even if there is no more velocity
         // this ensures that we always settle down to angle 0 with no input
@@ -215,13 +215,13 @@ void apply_physics(void) BANKED
 
         if (angleAdjust == 0)
         {
-            if (player.hookAngle >= 246)
+            if (player.hookAngle >= ANGLE_360DEG - 20)
             {
                 player.hookAngle += 1;
                 angleSettleAlignment = -1;
                 player.angularVel = 0;
             }
-            else if (player.hookAngle > 0 && player.hookAngle <= 9)
+            else if (player.hookAngle > 0 && player.hookAngle <= 20)
             {
                 player.hookAngle -= 1;
                 angleSettleAlignment = 1;
