@@ -31,6 +31,7 @@ void init_window(void)
     window.timer_minutes = 0;
     window.timer_seconds = 0;
     window.drawn_deaths = 1000;
+    window.drawn_level = 255;
     window.death_counter_tiles[0] = FONT_SKULL_TILE_INDEX;
     window.death_counter_tiles[1] = FONT_START_TILE_INDEX;
     window.death_counter_tiles[2] = FONT_START_TILE_INDEX;
@@ -41,7 +42,9 @@ void init_window(void)
     window.level_timer_tiles[3] = FONT_COLON_TILE_INDEX;
     window.level_timer_tiles[4] = FONT_START_TILE_INDEX;
     window.level_timer_tiles[5] = FONT_START_TILE_INDEX;
-
+    window.level_counter_tiles[0] = FONT_LV_TILE_INDEX;
+    window.level_counter_tiles[1] = FONT_START_TILE_INDEX;
+    window.level_counter_tiles[2] = FONT_START_TILE_INDEX;
 }
 
 void clear_background(void)
@@ -224,6 +227,26 @@ void update_window(void)
 
         window.death_counter_tiles[3] = FONT_START_TILE_INDEX + tmp_deaths;
         set_win_tiles(0, 0, 4, 1, window.death_counter_tiles);
+    }
+
+    // level counter
+    if (window.drawn_level != game.currentLevel || window.drawn_level == 255)
+    {
+        window.drawn_level = game.currentLevel;
+
+        window.level_counter_tiles[1] = FONT_START_TILE_INDEX;
+        window.level_counter_tiles[2] = FONT_START_TILE_INDEX;
+
+        uint8_t tmp_level = window.drawn_level;
+
+        while (tmp_level >= 10)
+        {
+            tmp_level -= 10;
+            window.level_counter_tiles[1] += 1;
+        }
+
+        window.level_counter_tiles[2] = FONT_START_TILE_INDEX + tmp_level;
+        set_win_tiles(8, 0, 3, 1, window.level_counter_tiles);
     }
 }
 

@@ -19,6 +19,7 @@
 #define FONT_COLON_TILE_INDEX 52
 #define FONT_CLOCK_TILE_INDEX 53
 #define FONT_SKULL_TILE_INDEX 54
+#define FONT_LV_TILE_INDEX 56
 
 struct Camera
 {
@@ -35,8 +36,10 @@ struct WindowData
     uint8_t timer_minutes;
     uint8_t timer_seconds;
     uint16_t drawn_deaths;
+    uint8_t drawn_level;
     uint8_t level_timer_tiles[6];
     uint8_t death_counter_tiles[4];
+    uint8_t level_counter_tiles[3];
 };
 
 struct GraphicsInfo
