@@ -49,6 +49,7 @@ void process_game_input(void) BANKED
     {
         music_play_sfx(BANK(sfx_11), sfx_11, SFX_MUTE_MASK(sfx_11), MUSIC_SFX_PRIORITY_NORMAL);
         game.gameState = GS_PAUSE;
+        LYC_REG = 16;
         return;
     }
 
@@ -391,6 +392,7 @@ void process_pause_input(void) BANKED
     if (INPUT_KEYPRESS(J_START))
     {
         game.gameState = GS_INGAME;
+        LYC_REG = 8;
     }
     else
     {

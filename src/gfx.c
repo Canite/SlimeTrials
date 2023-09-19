@@ -45,6 +45,13 @@ void init_window(void)
     window.level_counter_tiles[0] = FONT_LV_TILE_INDEX;
     window.level_counter_tiles[1] = FONT_START_TILE_INDEX;
     window.level_counter_tiles[2] = FONT_START_TILE_INDEX;
+
+    // hidden until pause is pressed
+    uint8_t pause_tiles[3];
+    pause_tiles[0] = FONT_PAUSE_TILE_INDEX;
+    pause_tiles[1] = FONT_PAUSE_TILE_INDEX + 1;
+    pause_tiles[2] = FONT_PAUSE_TILE_INDEX + 2;
+    set_win_tiles(8, 1, 3, 1, pause_tiles);
 }
 
 void clear_background(void)

@@ -20,6 +20,7 @@
 #define FONT_CLOCK_TILE_INDEX 53
 #define FONT_SKULL_TILE_INDEX 54
 #define FONT_LV_TILE_INDEX 56
+#define FONT_PAUSE_TILE_INDEX 57
 
 struct Camera
 {
