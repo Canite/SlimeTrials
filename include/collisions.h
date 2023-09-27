@@ -22,7 +22,9 @@ enum CollisionType
     COL_EMPTY,
     COL_GOAL,
     COL_DEATH,
-    COL_SOLID
+    COL_SOLID,
+    COL_BOOST_RIGHT,
+    COL_BOOST_UP,
 };
 
 uint8_t check_collision(uint16_t x, uint16_t y);

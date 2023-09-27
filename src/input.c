@@ -27,7 +27,6 @@ void process_game_input(void) BANKED
 {
     // DEBUG
     // level change
-    /*
     if (INPUT_KEY(J_SELECT))
     {
         if (INPUT_KEYPRESS(J_LEFT))
@@ -43,7 +42,6 @@ void process_game_input(void) BANKED
             return;
         }
     }
-    */
 
     if (INPUT_KEYPRESS(J_START))
     {
@@ -67,8 +65,11 @@ void process_game_input(void) BANKED
                 player.animSpeed = GROUND_MOVE_ANIM_SPEED;
                 player.animFrame = 0;
             }
-            player.xSpd -= X_GROUND_ACCELERATION_IN_SUBPIXELS;
-            if (player.xSpd < -MAX_X_GROUND_SPEED_IN_SUBPIXELS) player.xSpd = -MAX_X_GROUND_SPEED_IN_SUBPIXELS;
+
+            if (player.xSpd > -MAX_X_GROUND_SPEED_IN_SUBPIXELS) 
+            {
+                player.xSpd -= X_GROUND_ACCELERATION_IN_SUBPIXELS;
+            }
         } 
         else if (player.hookState == HS_ATTACHED)
         {
@@ -87,8 +88,10 @@ void process_game_input(void) BANKED
         }
         else
         {
-            player.xSpd -= X_ACCELERATION_IN_SUBPIXELS;
-            if (player.xSpd < -MAX_X_SPEED_IN_SUBPIXELS) player.xSpd = -MAX_X_SPEED_IN_SUBPIXELS;
+            if (player.xSpd > -MAX_X_SPEED_IN_SUBPIXELS)
+            {
+                player.xSpd -= X_ACCELERATION_IN_SUBPIXELS;
+            }
         }
     }
     else if (INPUT_KEY(J_RIGHT))
@@ -104,8 +107,11 @@ void process_game_input(void) BANKED
                 player.animSpeed = GROUND_MOVE_ANIM_SPEED;
                 player.animFrame = 0;
             }
-            player.xSpd += X_GROUND_ACCELERATION_IN_SUBPIXELS;
-            if (player.xSpd > MAX_X_GROUND_SPEED_IN_SUBPIXELS) player.xSpd = MAX_X_GROUND_SPEED_IN_SUBPIXELS;
+
+            if (player.xSpd < MAX_X_GROUND_SPEED_IN_SUBPIXELS)
+            {
+                player.xSpd += X_GROUND_ACCELERATION_IN_SUBPIXELS;
+            }
         } 
         else if (player.hookState == HS_ATTACHED)
         {
@@ -124,8 +130,10 @@ void process_game_input(void) BANKED
         }
         else
         {
-            player.xSpd += X_ACCELERATION_IN_SUBPIXELS;
-            if (player.xSpd > MAX_X_SPEED_IN_SUBPIXELS) player.xSpd = MAX_X_SPEED_IN_SUBPIXELS;
+            if (player.xSpd < MAX_X_SPEED_IN_SUBPIXELS)
+            {
+                player.xSpd += X_ACCELERATION_IN_SUBPIXELS;
+            }
         }
     }
     else
@@ -349,7 +357,8 @@ void process_game_input(void) BANKED
             player.hookState = HS_STOWED;
             if (player.hookLength >= MIN_HOOK_LENGTH)
             {
-                int16_t xMomentum = (player.angularVel * COS(player.hookAngle)) >> 7;
+                //int16_t xMomentum = CLAMP((player.angularVel * COS(player.hookAngle)) >> 7, -MAX_X_SPEED_IN_SUBPIXELS, MAX_X_SPEED_IN_SUBPIXELS);
+                int16_t xMomentum = ((player.angularVel >> 1) * COS(player.hookAngle)) >> 7;
                 if (xMomentum > 0)
                 {
                     xMomentum += (player.hookLength >> 2);
@@ -360,6 +369,7 @@ void process_game_input(void) BANKED
                 }
                 player.xSpd = xMomentum;
 
+                //int16_t yMomentum = CLAMP((player.angularVel * SIN(player.hookAngle)) >> 7, -MAX_Y_SPEED_IN_SUBPIXELS, MAX_Y_SPEED_IN_SUBPIXELS);
                 int16_t yMomentum = (player.angularVel * SIN(player.hookAngle)) >> 7;
                 /*
                 if (yMomentum > 0)

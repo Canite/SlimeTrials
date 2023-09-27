@@ -131,7 +131,15 @@ void apply_physics(void) BANKED
         player.x += player.xSpd;
         player.y += player.ySpd;
 
-        player.ySpd += GRAVITY_CONST;
+        if (player.ySpd < -MAX_Y_SPEED_IN_SUBPIXELS)
+        {
+            player.ySpd += GRAVITY_CONST << 1;
+            player.ySpd = MIN(-MAX_Y_SPEED_IN_SUBPIXELS, player.ySpd);
+        }
+        else
+        {
+            player.ySpd += GRAVITY_CONST;
+        }
 
         // decelerate Y and X
         if (player.grounded)
@@ -139,6 +147,16 @@ void apply_physics(void) BANKED
             if (player.xSpd < X_GROUND_DECELERATION_IN_SUBPIXELS && player.xSpd > -X_GROUND_DECELERATION_IN_SUBPIXELS)
             {
                 player.xSpd = 0;
+            }
+            else if (player.xSpd < -MAX_X_GROUND_SPEED_IN_SUBPIXELS)
+            {
+                player.xSpd += X_GROUND_DECELERATION_IN_SUBPIXELS << 1;
+                player.xSpd = MIN(-MAX_X_GROUND_SPEED_IN_SUBPIXELS, player.xSpd);
+            }
+            else if (player.xSpd > MAX_X_GROUND_SPEED_IN_SUBPIXELS)
+            {
+                player.xSpd -= X_GROUND_DECELERATION_IN_SUBPIXELS << 1;
+                player.xSpd = MAX(MAX_X_GROUND_SPEED_IN_SUBPIXELS, player.xSpd);
             }
             else if (player.xSpd < 0)
             {
@@ -154,6 +172,16 @@ void apply_physics(void) BANKED
             if (player.xSpd < X_DECELERATION_IN_SUBPIXELS && player.xSpd > -X_DECELERATION_IN_SUBPIXELS)
             {
                 player.xSpd = 0;
+            }
+            else if (player.xSpd < -MAX_X_SPEED_IN_SUBPIXELS)
+            {
+                player.xSpd += X_DECELERATION_IN_SUBPIXELS << 1;
+                player.xSpd = MIN(-MAX_X_SPEED_IN_SUBPIXELS, player.xSpd);
+            }
+            else if (player.xSpd > MAX_X_SPEED_IN_SUBPIXELS)
+            {
+                player.xSpd -= X_DECELERATION_IN_SUBPIXELS << 1;
+                player.xSpd = MAX(MAX_X_SPEED_IN_SUBPIXELS, player.xSpd);
             }
             else if (player.xSpd < 0)
             {
@@ -195,8 +223,18 @@ void apply_physics(void) BANKED
             player.angularAcc = player.angularAcc >> 1;
         }
 
-        player.angularVel += player.angularAcc;
-        player.angularVel = CLAMP(player.angularVel, MIN_ANGULAR_VELOCITY + (player.hookLength >> 2), MAX_ANGULAR_VELOCITY - (player.hookLength >> 2));
+        if (player.angularVel < MIN_ANGULAR_VELOCITY + (player.hookLength >> 2))
+        {
+            player.angularVel += 2;
+        }
+        else if (player.angularVel > MAX_ANGULAR_VELOCITY - (player.hookLength >> 2))
+        {
+            player.angularVel -= 2;
+        }
+        else
+        {
+            player.angularVel += player.angularAcc;
+        }
 
         // Taper off to angle 0 even if there is no more velocity
         // this ensures that we always settle down to angle 0 with no input
@@ -219,13 +257,13 @@ void apply_physics(void) BANKED
             {
                 player.hookAngle += 1;
                 angleSettleAlignment = -1;
-                player.angularVel = 0;
+                //player.angularVel = 0;
             }
             else if (player.hookAngle > 0 && player.hookAngle <= 20)
             {
                 player.hookAngle -= 1;
                 angleSettleAlignment = 1;
-                player.angularVel = 0;
+                //player.angularVel = 0;
             }
         }
         else
@@ -307,7 +345,10 @@ void apply_physics(void) BANKED
             else
             {
                 player.hookAngle = player.hookAngle + tmpAngle;
-                player.angularVel = -(player.angularVel >> 3);
+                if (player.colFlags != player.oldColFlags)
+                {
+                    player.angularVel = -(player.angularVel >> 1);
+                }
             }
         }
 
@@ -356,6 +397,30 @@ void apply_physics(void) BANKED
                     game.deaths += 1;
                 }
                 return;
+            }
+        }
+        else if (collision_botleft == COL_BOOST_RIGHT || collision_topleft == COL_BOOST_RIGHT ||
+            collision_botright == COL_BOOST_RIGHT || collision_topright == COL_BOOST_RIGHT)
+        {
+            if (player.hookState != HS_ATTACHED)
+            {
+                player.xSpd += 15;
+            }
+            else
+            {
+                player.angularVel += 15;
+            }
+        }
+        else if (collision_botleft == COL_BOOST_UP || collision_topleft == COL_BOOST_UP ||
+            collision_botright == COL_BOOST_UP || collision_topright == COL_BOOST_UP)
+        {
+            if (player.hookState != HS_ATTACHED)
+            {
+                player.ySpd -= 15;
+            }
+            else
+            {
+                player.angularVel += 15;
             }
         }
 

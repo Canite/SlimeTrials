@@ -102,6 +102,8 @@ void start_level(void)
     if (game.currentLevel > NUM_LEVELS)
     {
         init_end_screen();
+        init_camera();
+        camera.redraw = 1;
         game.nextState = GS_END;
         gfx.update_background = 1;
         gfx.draw_window = 0;
