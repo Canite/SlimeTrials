@@ -372,11 +372,15 @@ void apply_physics(void) BANKED
     {
         // Update collision flags
         update_tilemap_collision(player.x, player.y);
+
+        // lower the collision size for some leniency on the hurtbox
+        collision_size_offset = 2;
         check_collision(player.x, player.y);
+        collision_size_offset = 0;
 
         // Check special collision cases
-        if (collision_botleft == COL_DEATH || collision_topleft == COL_DEATH ||
-            collision_botright == COL_DEATH || collision_topright == COL_DEATH)
+        if (collision_botleft == COL_DEATH || collision_botright == COL_DEATH ||
+            collision_topleft == COL_DEATH || collision_topright == COL_DEATH)
         {
             if ((player.flags & PF_HASATL) != 0)
             {

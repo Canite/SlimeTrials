@@ -122,7 +122,7 @@ prepare:
 
 clean:
 #	rm -f  *.gb *.ihx *.cdb *.adb *.noi *.map
-	rm -f  $(OBJDIR)/*.*
+	rm -rf  $(OBJDIR)/*
 	rm -f  $(RESDIR)/*.c
 	rm -f  $(RESDIR)/*.h
 	rm -f  $(RESDIR)/*.2bpp

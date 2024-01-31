@@ -17,6 +17,8 @@ extern uint8_t collision_botright;
 extern uint8_t collision_topleft;
 extern uint8_t collision_topright;
 
+extern uint8_t collision_size_offset;
+
 enum CollisionType
 {
     COL_EMPTY,

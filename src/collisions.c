@@ -10,16 +10,18 @@ uint8_t collision_botright  = 0;
 uint8_t collision_topleft = 0;
 uint8_t collision_topright = 0;
 
+uint8_t collision_size_offset = 0;
+
 // For solid ground collisions
 uint8_t check_collision(uint16_t x, uint16_t y) NONBANKED
 {
     uint8_t currentBank = CURRENT_BANK;
     SWITCH_ROM(game.level_data.collisions_bank);
 
-    uint8_t col_left = ((x >> 4)-8) >> 3;
-    uint8_t col_right = ((x >> 4)-1) >> 3;
-    uint8_t col_top = ((y >> 4)-16) >> 3;
-    uint8_t col_bottom = ((y >> 4)-9) >> 3;
+    uint8_t col_left = ((x >> 4) - (8 - collision_size_offset)) >> 3;
+    uint8_t col_right = ((x >> 4) - (1 + collision_size_offset)) >> 3;
+    uint8_t col_top = ((y >> 4) - (16 - collision_size_offset)) >> 3;
+    uint8_t col_bottom = ((y >> 4) - (9 + collision_size_offset)) >> 3;
 
     collision_botleft = game.level_data.collisions[col_bottom * game.level_data.tile_width + col_left];
     collision_botright  = game.level_data.collisions[col_bottom * game.level_data.tile_width + col_right];

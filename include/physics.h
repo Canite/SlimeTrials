@@ -27,7 +27,7 @@
 #define MAX_STRAIGHT_HOOK_DISTANCE 1280 // 80 pixels
 #define MAX_HOOK_LENGTH 70 // 80 pixels
 #define MIN_HOOK_LENGTH 12 // 12 pixels
-#define MAX_ADJUST_ANGLE 24
+#define MAX_ADJUST_ANGLE 32
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
