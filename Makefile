@@ -14,21 +14,20 @@ else
 	GBDK_HOME = /home/canight/gbdk/
 	RGBDS_HOME = /home/canight/rgbds
 	HUGE_HOME = /home/canight/hugetracker
-	EMULATOR = java
-	EMULATORFLAGS += -jar /home/canight/Downloads/emulicious/Emulicious.jar
+	EMULATOR_gb = java -jar /home/canight/Downloads/emulicious/Emulicious.jar
+	EMULATORFLAGS_gb = 
+	EMULATOR_nes = 
+	EMULATORFLAGS_nes = 
 endif
 
-SRCDIR      = src
-OBJDIR      = obj
-RESDIR      = res
-EXTDIR 		= ext
-UTILDIR     = utils
+TARGETS = gb# nes
 
 # Configure platform specific LCC flags here:
 LCCFLAGS_gb      = -Wl-yt0x1B # Set an MBC for banking (1B-ROM+MBC5+RAM+BATT)
 LCCFLAGS_pocket  = -Wl-yt0x1B # Usually the same as required for .gb
 LCCFLAGS_duck    = -Wl-yt0x1B # Usually the same as required for .gb
 LCCFLAGS_gbc     = -Wl-yt0x1B -Wm-yc # Same as .gb with: -Wm-yc (gb & gbc) or Wm-yC (gbc exclusive)
+LCCFLAGS_nes 	 = -mmos6502:nes -Wm-yoA
 
 LCC = $(GBDK_HOME)bin/lcc
 PNGCONVERTER = $(GBDK_HOME)bin/png2asset
@@ -36,9 +35,11 @@ PNGCONVERTERFLAGS = -tiles_only -spr8x8 -noflip -keep_palette_order -repair_inde
 RGBASM = $(RGBDS_HOME)/rgbasm
 UGE2SOURCE = $(HUGE_HOME)/uge2source
 
+EXTDIR 		= ext
+
 # You can set flags for LCC here
 CFLAGS += -Iinclude -Iext -debug 
-LCCFLAGS += $(LCCFLAGS_gb)
+LCCFLAGS += $(LCCFLAGS_$(EXT))
 LCCFLAGS += -Wl-j -Wm-ya4 -autobank -Wb-ext=.rel -Wb-v
 LCCFLAGS += -Wl-l$(EXTDIR)/hUGEDriver.lib
 # LCCFLAGS += -v     # Uncomment for lcc verbose output
@@ -48,7 +49,12 @@ RGB2SDAS = python $(UTILDIR)/rgb2sdas.py
 # You can set the name of the .gb ROM file here
 PROJECTNAME    = SlimeTrials
 
-BINS	    = $(OBJDIR)/$(PROJECTNAME).gb
+SRCDIR      = src
+OBJDIR      = obj/$(EXT)
+RESDIR      = res
+UTILDIR     = utils
+
+BINS	    = $(OBJDIR)/$(PROJECTNAME).$(EXT)
 CSOURCES    = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.c))) $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.c)))
 ASMSOURCES  = $(foreach dir,$(SRCDIR),$(notdir $(wildcard $(dir)/*.asm)))
 EXTASMSOURCES = $(foreach dir,$(EXTDIR),$(notdir $(wildcard $(dir)/*.asm)))
@@ -59,7 +65,7 @@ SFXFILES   = $(foreach dir,$(RESDIR),$(notdir $(wildcard $(dir)/*.sav)))
 OBJS        = $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.asm=$(OBJDIR)/%.o) $(EXTASMSOURCES:%.asm=$(OBJDIR)/%.o)
 RESOBJS		= $(IMAGEFILES:%.png=$(RESDIR)/%.c) $(TILEDFILES:%.tmj=$(RESDIR)/%.c) $(HUGEFILES:%.uge=$(RESDIR)/%.c) $(SFXFILES:%.sav=$(RESDIR)/%.c)
 
-all:	prepare $(BINS)
+all:	prepare $(TARGETS)
 
 compile.bat: Makefile
 	@echo "REM Automatically generated from Makefile" > compile.bat
@@ -122,4 +128,6 @@ clean:
 	rm -f  $(RESDIR)/*.2bpp
 
 run:
-	$(EMULATOR) $(EMULATORFLAGS) $(OBJDIR)/$(PROJECTNAME).gb
+	$(EMULATOR_$(EXT)) $(EMULATORFLAGS_$(EXT)) $(OBJDIR)/$(PROJECTNAME).$(EXT)
+
+include Makefile.targets
