@@ -206,7 +206,11 @@ void apply_physics(void) BANKED
     else
     {
         uint8_t bPlayerInput = (player.flags & PF_HASINPUT) != 0;
-        player.angularAcc = SIN(player.hookAngle) >> 1;
+        if (!bPlayerInput) {
+            player.angularAcc = 0;
+        }
+        player.angularAcc += SIN(player.hookAngle) >> 1;
+
         if (player.angularAcc < 0)
         {
             player.angularAcc = -1 * player.angularAcc;
@@ -216,11 +220,6 @@ void apply_physics(void) BANKED
         {
             player.angularAcc = player.angularAcc / (player.hookLength >> 2);
             player.angularAcc = -1 * player.angularAcc;
-        }
-
-        if (bPlayerInput && sign(player.angularAcc) != sign(player.angularVel))
-        {
-            player.angularAcc = player.angularAcc >> 1;
         }
 
         if (player.angularVel < MIN_ANGULAR_VELOCITY + (player.hookLength >> 2))

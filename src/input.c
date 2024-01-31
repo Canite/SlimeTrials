@@ -73,17 +73,10 @@ void process_game_input(void) BANKED
         } 
         else if (player.hookState == HS_ATTACHED)
         {
-            if (player.angularVel > (MIN_ANGULAR_VELOCITY  + (player.hookLength >> 2)) &&
-               (player.hookLength >= MIN_HOOK_LENGTH && player.hookLength <= MAX_HOOK_LENGTH))
+            if (player.angularVel > (MIN_ANGULAR_VELOCITY + (player.hookLength >> 2)) &&
+               (player.hookLength >= MIN_HOOK_LENGTH))
             {
-                if (player.hookAngle < ANGLE_180DEG)
-                {
-                    player.angularVel -= INPUT_ANGULAR_ACC;
-                }
-                else
-                {
-                    player.angularVel -= INPUT_ANGULAR_ACC - (SIN(player.hookAngle) >> 2);
-                }
+                player.angularAcc += INPUT_ANGULAR_ACC / (player.hookLength >> 3);
             }
         }
         else
@@ -116,16 +109,9 @@ void process_game_input(void) BANKED
         else if (player.hookState == HS_ATTACHED)
         {
             if (player.angularVel < ((MAX_ANGULAR_VELOCITY) - (player.hookLength >> 2)) &&
-               (player.hookLength >= MIN_HOOK_LENGTH && player.hookLength <= MAX_HOOK_LENGTH))
+               (player.hookLength >= MIN_HOOK_LENGTH))
             {
-                if (player.hookAngle < ANGLE_180DEG)
-                {
-                    player.angularVel += INPUT_ANGULAR_ACC;
-                }
-                else
-                {
-                    player.angularVel += INPUT_ANGULAR_ACC - (SIN(player.hookAngle) >> 2);
-                }
+                player.angularAcc -= INPUT_ANGULAR_ACC / (player.hookLength >> 3);
             }
         }
         else
